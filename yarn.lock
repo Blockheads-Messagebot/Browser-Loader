@@ -17,9 +17,9 @@
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.5.tgz#3470f3edc6cc5305425685e57f26cbce59b6daa8"
 
-"@bhmb/ui@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@bhmb/ui/-/ui-1.0.0.tgz#a656b666e96a55a125272daf50a115bc349faac4"
+"@bhmb/ui@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@bhmb/ui/-/ui-1.0.1.tgz#9f5a52eefc22595f6341631a2a2934070ee0ec77"
 
 acorn@^5.1.1:
   version "5.1.2"
