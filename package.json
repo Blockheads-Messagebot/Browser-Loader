@@ -1,0 +1,25 @@
+{
+  "name": "Browser-Loader",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Blockheads-Messagebot/Browser-Loader.git",
+  "author": "Bibliofile <Bibliofilegit@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@bhmb/bot": "^7.0.0-a8",
+    "@bhmb/messages": "^1.0.4",
+    "@bhmb/ui": "1.0.0-a10",
+    "babel-core": "^6.26.0",
+    "blockheads-api": "^0.3.3",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.2.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-typescript2": "^0.7.0",
+    "rollup-plugin-uglify": "^2.0.1",
+    "typescript": "^2.5.3"
+  },
+  "scripts": {
+    "build": "rollup --config"
+  }
+}
