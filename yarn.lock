@@ -9,17 +9,17 @@
     blockheads-api "^0.3.2"
     strongly-typed-events "^1.0.1"
 
-"@bhmb/console@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.0.tgz#32a32feb4559509093c92845b9da414f1d1d5b7f"
+"@bhmb/console@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.1.tgz#4c302eede56e2fcefe010de8bca139ec07f06611"
 
 "@bhmb/messages@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.5.tgz#3470f3edc6cc5305425685e57f26cbce59b6daa8"
 
-"@bhmb/ui@1.0.0-a10":
-  version "1.0.0-a10"
-  resolved "https://registry.yarnpkg.com/@bhmb/ui/-/ui-1.0.0-a10.tgz#f996fea19ff7247d67b31353121f8403598a0dec"
+"@bhmb/ui@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@bhmb/ui/-/ui-1.0.0.tgz#a656b666e96a55a125272daf50a115bc349faac4"
 
 acorn@^5.1.1:
   version "5.1.2"

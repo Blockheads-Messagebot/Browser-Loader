@@ -1659,7 +1659,7 @@ class Storage$1 extends Storage {
     }
 }
 
-var page = "<header class=\"header is-fixed-top\">\r\n    <nav class=\"nav-inverse nav has-shadow\">\r\n        <div class=\"nav-left\">\r\n            <div class=\"nav-item nav-slider-toggle\">\r\n                <img src=\"https://i.imgsafe.org/80a1129a36.png\">\r\n            </div>\r\n            <a class=\"nav-item is-tab nav-slider-toggle\">Menu</a>\r\n        </div>\r\n    </nav>\r\n</header>\r\n\r\n<div class=\"nav-slider-container\">\r\n    <nav class=\"nav-slider\"></nav>\r\n    <div class=\"is-overlay nav-slider-toggle\"></div>\r\n</div>\r\n\r\n<div id=\"container\" class=\"has-fixed-nav\"></div>\r\n\r\n\r\n<div id=\"modal\" class=\"modal\">\r\n    <div class=\"modal-background\"></div>\r\n    <div class=\"modal-card\">\r\n        <header class=\"modal-card-head\"></header>\r\n        <section class=\"modal-card-body\"></section>\r\n        <footer class=\"modal-card-foot\"></footer>\r\n    </div>\r\n</div>\r\n";
+var page = "<header class=\"header is-fixed-top\">\r\n    <nav class=\"nav-inverse nav has-shadow\">\r\n        <div class=\"nav-left\">\r\n            <div class=\"nav-item nav-slider-toggle\">\r\n                <img src=\"https://gitcdn.xyz/repo/Blockheads-Messagebot/MessageBot/master/logo.png\">\r\n            </div>\r\n            <a class=\"nav-item is-tab nav-slider-toggle\">Menu</a>\r\n        </div>\r\n    </nav>\r\n</header>\r\n\r\n<div class=\"nav-slider-container\">\r\n    <nav class=\"nav-slider\"></nav>\r\n    <div class=\"is-overlay nav-slider-toggle\"></div>\r\n</div>\r\n\r\n<div id=\"container\" class=\"has-fixed-nav\"></div>\r\n\r\n\r\n<div id=\"modal\" class=\"modal\">\r\n    <div class=\"modal-background\"></div>\r\n    <div class=\"modal-card\">\r\n        <header class=\"modal-card-head\"></header>\r\n        <section class=\"modal-card-body\"></section>\r\n        <footer class=\"modal-card-foot\"></footer>\r\n    </div>\r\n</div>\r\n";
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -2318,7 +2318,7 @@ MessageBot.registerExtension('console', function (ex, world) {
         if (input.value.startsWith('/')) {
             consoleExports.log(input.value);
         }
-        world.send(input.value);
+        ex.bot.send(input.value);
         input.value = '';
     }
     input.addEventListener('keyup', event => {
