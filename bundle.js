@@ -2060,6 +2060,7 @@ class TriggerListener extends RemovableMessageHelper {
     constructor(ex) {
         super('triggerArr', ex);
         this.listener = ({ player, message }) => {
+            if (player.name == 'SERVER') return;
             let responses = 0;
             for (let msg of this.messages) {
                 let checks = [checkJoins(player, msg), checkGroups(player, msg), this.triggerMatches(message, msg.trigger)];
@@ -2255,6 +2256,147 @@ MessageBot.registerExtension('messages', function (ex, world) {
     }
 });
 
+function history(input) {
+    let history = [];
+    let current = 0;
+    function addToHistory(message) {
+        history.push(message);
+        while (history.length > 100) {
+            history.shift();
+        }
+        current = history.length;
+    }
+    function addIfNew(message) {
+        if (message != history.slice(-1).pop()) {
+            addToHistory(message);
+        } else {
+            current = history.length;
+        }
+    }
+    input.addEventListener('keydown', event => {
+        if (event.key == 'ArrowUp') {
+            if (input.value.length && current == history.length) {
+                addToHistory(input.value);
+                current--;
+            }
+            if (history.length && current) {
+                input.value = history[--current];
+            }
+        } else if (event.key == 'ArrowDown') {
+            if (history.length > current + 1) {
+                input.value = history[++current];
+            } else if (history.length == current + 1) {
+                input.value = '';
+                current = history.length;
+            }
+        } else if (event.key == 'Enter') {
+            addIfNew(input.value);
+        }
+    });
+}
+
+var html = "<template>\r\n    <li>\r\n        <span>NAME</span>\r\n        <span>: Message</span>\r\n    </li>\r\n</template>\r\n<div id=\"console\">\r\n    <div class=\"chat\">\r\n        <ul></ul>\r\n    </div>\r\n    <div class=\"chat-control\">\r\n        <div class=\"field has-addons\">\r\n            <p class=\"control is-expanded\">\r\n                <input type=\"text\" class=\"input\" />\r\n            </p>\r\n            <p class=\"control\">\r\n                <button class=\"input button is-primary\">SEND</button>\r\n            </p>\r\n        </div>\r\n    </div>\r\n</div>";
+
+var css$1 = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
+
+MessageBot.registerExtension('console', function (ex, world) {
+    if (!ex.bot.getExports('ui')) {
+        throw new Error('This extension should only be loaded in a browser, and must be loaded after the UI is loaded.');
+    }
+    const ui = ex.bot.getExports('ui');
+    // Create the tab.
+    let style = document.head.appendChild(document.createElement('style'));
+    style.textContent = css$1;
+    let tab = ui.addTab('Console');
+    tab.innerHTML = html;
+    let chatUl = tab.querySelector('ul');
+    let chatContainer = chatUl.parentElement;
+    let template = tab.querySelector('template');
+    // Handle sending
+    let input = tab.querySelector('input');
+    function userSend() {
+        if (input.value.startsWith('/')) {
+            consoleExports.log(input.value);
+        }
+        world.send(input.value);
+        input.value = '';
+    }
+    input.addEventListener('keyup', event => {
+        if (event.key == 'Enter') {
+            userSend();
+        }
+    });
+    // History module, used to be a separate extension
+    history(input);
+    tab.querySelector('button').addEventListener('click', userSend);
+    // Auto scroll when new chat is added to the page, unless we are scrolled up.
+    new MutationObserver(function (events) {
+        let total = chatUl.children.length;
+        // Determine how many messages have been added
+        let addedHeight = 0;
+        for (let i = total - events.length; i < total; i++) {
+            addedHeight += chatUl.children[i].clientHeight;
+        }
+        // If we were scrolled down already, stay scrolled down
+        if (chatContainer.scrollHeight - chatContainer.clientHeight - chatContainer.scrollTop == addedHeight) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        // Remove old messages if necessary
+        while (chatUl.children.length > 500) {
+            chatUl.children[0].remove();
+        }
+    }).observe(chatUl, { childList: true, subtree: true });
+    // Add a message to the page
+    function addPlayerMessage(player, message) {
+        if (!message.length) return;
+        let messageClass = 'player';
+        if (player.isAdmin) messageClass = 'admin';
+        if (player.isMod) messageClass = 'mod';
+        ui.buildTemplate(template, chatUl, [{ selector: 'li', 'class': messageClass }, { selector: 'span:first-child', text: player.name }, { selector: 'span:last-child', text: ': ' + message }]);
+    }
+    function addGenericMessage(message) {
+        if (!message.length) return;
+        let li = document.createElement('li');
+        li.textContent = message;
+        chatUl.appendChild(li);
+    }
+    // Export required functions
+    let consoleExports = {
+        log: message => addPlayerMessage(world.getPlayer('SERVER'), message)
+    };
+    ex.exports = consoleExports;
+    function logJoins(player) {
+        if (ex.storage.get('logJoinIps', true)) {
+            consoleExports.log(`${player.name} (${player.ip}) joined.`);
+        } else {
+            consoleExports.log(`${player.name} joined.`);
+        }
+    }
+    world.onJoin.sub(logJoins);
+    function logLeaves(player) {
+        consoleExports.log(player.name + ' left');
+    }
+    world.onLeave.sub(logLeaves);
+    function logMessages({ player, message }) {
+        addPlayerMessage(player, message);
+    }
+    world.onMessage.sub(logMessages);
+    function logOther(message) {
+        if (ex.storage.get('logUnparsedMessages', true)) {
+            addGenericMessage(message);
+        }
+    }
+    world.onOther.sub(logOther);
+    ex.remove = function () {
+        ui.removeTab(tab);
+        style.remove();
+        world.onJoin.unsub(logJoins);
+        world.onLeave.unsub(logLeaves);
+        world.onMessage.unsub(logMessages);
+        world.onOther.unsub(logOther);
+    };
+});
+
 window['@bhmb/bot'] = { MessageBot };
 const worldId = window.worldId;
 if (location.hostname != 'portal.theblockheads.net') {
@@ -2272,9 +2414,9 @@ let info = {
     id: worldId + ''
 };
 let bot = new MessageBot(new Storage$1(''), info);
-MessageBot.registerExtension('global', ex => window.ex = ex);
-bot.addExtension('global');
 bot.addExtension('ui');
+bot.addExtension('console');
+document.querySelector('.nav-item').click();
 bot.addExtension('messages');
 
 }());

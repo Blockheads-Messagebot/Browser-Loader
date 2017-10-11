@@ -9,9 +9,13 @@
     blockheads-api "^0.3.2"
     strongly-typed-events "^1.0.1"
 
-"@bhmb/messages@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.4.tgz#f54f827a1b8e8539f7df23e31aa45fe362e1a68f"
+"@bhmb/console@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.0.tgz#32a32feb4559509093c92845b9da414f1d1d5b7f"
+
+"@bhmb/messages@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.5.tgz#3470f3edc6cc5305425685e57f26cbce59b6daa8"
 
 "@bhmb/ui@1.0.0-a10":
   version "1.0.0-a10"

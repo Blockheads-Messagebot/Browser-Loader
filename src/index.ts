@@ -4,6 +4,7 @@ import { WorldInfo } from 'blockheads-api/api'
 import { Storage } from './storage'
 import '@bhmb/ui'
 import '@bhmb/messages'
+import '@bhmb/console'
 
 (window as any)['@bhmb/bot'] = { MessageBot }
 const worldId: string = (window as any).worldId
@@ -28,5 +29,6 @@ let info: WorldInfo = {
 
 let bot = new MessageBot(new Storage(''), info)
 bot.addExtension('ui')
-bot.addExtension('messages')
+bot.addExtension('console')
 ;(document.querySelector('.nav-item') as HTMLElement).click()
+bot.addExtension('messages')
