@@ -1,6 +1,33 @@
 (function () {
 'use strict';
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+
+
+function __rest(s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    return t;
+}
+
 class MessageBotExtension {
   /**
    * Creates a new extension.
@@ -862,7 +889,7 @@ var stronglyTypedEvents = createCommonjsModule(function (module, exports) {
 
 var stronglyTypedEvents_16 = stronglyTypedEvents.createSimpleEventDispatcher;
 
-var __awaiter$1 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$2 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) {
             try {
@@ -950,7 +977,7 @@ class ChatWatcher {
          * Continually checks chat for new messages
          * @param lastId the ID to pass to the API to get only most recent messages.
          */
-        this.checkChat = lastId => __awaiter$1(this, void 0, void 0, function* () {
+        this.checkChat = lastId => __awaiter$2(this, void 0, void 0, function* () {
             try {
                 let { log, nextId } = yield this.api.getMessages(lastId);
                 if (this.timeoutId == null) return;
@@ -1025,7 +1052,7 @@ class ChatWatcher {
     }
 }
 
-var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$1 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) {
             try {
@@ -1065,7 +1092,7 @@ class World {
         /**
          * Gets an overview of the server info
          */
-        this.getOverview = (refresh = false) => __awaiter(this, void 0, void 0, function* () {
+        this.getOverview = (refresh = false) => __awaiter$1(this, void 0, void 0, function* () {
             if (!this._cache.overview || refresh) {
                 let overview = yield this._cache.overview = this._api.getOverview();
                 // Add online players to the online list if they aren't already online
@@ -1099,7 +1126,7 @@ class World {
          * @param lists WorldLists one or more list to update. If a list is not provided it will not be changed.
          * @return a promise which will resolve when the lists have been updated, or throw if an error occurred.
          */
-        this.setLists = lists => __awaiter(this, void 0, void 0, function* () {
+        this.setLists = lists => __awaiter$1(this, void 0, void 0, function* () {
             let currentLists = yield this.getLists();
             yield this._api.setLists(Object.assign({}, currentLists, lists));
             yield this.getLists(true);
@@ -1109,7 +1136,7 @@ class World {
          *
          * @param refresh if true, will get the latest logs, otherwise will returned the cached version.
          */
-        this.getLogs = (refresh = false) => __awaiter(this, void 0, void 0, function* () {
+        this.getLogs = (refresh = false) => __awaiter$1(this, void 0, void 0, function* () {
             if (!this._cache.logs || refresh) this._cache.logs = this._api.getLogs();
             let lines = yield this._cache.logs;
             return lines.slice().map(line => Object.assign({}, line, { timestamp: cloneDate(line.timestamp) }));
@@ -1254,7 +1281,7 @@ class Storage {
   }
 }
 
-var __rest = undefined && undefined.__rest || function (s, e) {
+var __rest$1 = undefined && undefined.__rest || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
@@ -1263,7 +1290,7 @@ var __rest = undefined && undefined.__rest || function (s, e) {
 let registeredExtensions = new Map();
 let extensionRegistered = stronglyTypedEvents_16();
 let extensionDeregistered = stronglyTypedEvents_16();
-class MessageBot {
+class MessageBot$1 {
     /**
      *
      * @param storage The storage instance to be used by the bot.
@@ -1275,8 +1302,8 @@ class MessageBot {
          * All loaded extension instances for this bot.
          */
         this._extensions = new Map();
-        if (!MessageBot.dependencies) throw new Error('Dependencies must be set before creating this class.');
-        this.world = new World(new MessageBot.dependencies.Api(info), storage);
+        if (!MessageBot$1.dependencies) throw new Error('Dependencies must be set before creating this class.');
+        this.world = new World(new MessageBot$1.dependencies.Api(info), storage);
     }
     /**
      * Registers an extension that can be loaded by instances of the bot.
@@ -1350,7 +1377,7 @@ class MessageBot {
      * @param params any variables to inject into the message. If `name` is provided, it will be available through {{NAME}}, {{Name}} and {{name}}
      */
     send(message, _a = {}) {
-        var params = __rest(_a, []);
+        var params = __rest$1(_a, []);
         // Common enough to be done here, set the name of the player up right.
         if (params.name && params.name.length) {
             let name = params.name.toLocaleLowerCase();
@@ -1369,11 +1396,28 @@ class MessageBot {
 /**
  * An event that fires whenever an extension is registered or re-registered.
  */
-MessageBot.extensionRegistered = extensionRegistered.asEvent();
+MessageBot$1.extensionRegistered = extensionRegistered.asEvent();
 /**
  * An event that fires when an extension is deregistered, if it has been registered. Will not fire when an extension is re-registered.
  */
-MessageBot.extensionDeregistered = extensionDeregistered.asEvent();
+MessageBot$1.extensionDeregistered = extensionDeregistered.asEvent();
+
+// Custom bot class to support splitting messages
+class MessageBot$$1 extends MessageBot$1 {
+    send(message, _a = {}) {
+        var params = __rest(_a, []);
+        let messages;
+        // Split the message if splitting is enabled.
+        if (this.storage.get('splitMessages', false)) {
+            messages = message.split(this.storage.get('splitToken', '<split>'));
+        } else {
+            messages = [message];
+        }
+        for (let msg of messages) {
+            super.send(msg, params);
+        }
+    }
+}
 
 /**
  * Parses logs from the portal into a standard format. This is only used by the [[PortalApi]] class. If you are consuming this library, you don't need to know anything about it.
@@ -1433,7 +1477,7 @@ class PortalLogParser {
  * @param message the string to compute the SHA1 hash of
  */
 
-var __awaiter$2 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$3 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) {
             try {
@@ -1498,7 +1542,7 @@ function requestPage(url, options) {
  * Gets all worlds owned by the logged in user.
  */
 function getWorlds() {
-    return __awaiter$2(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
         let page = yield requestPage('/worlds');
         let lines = page.split('\n');
         let worlds = [];
@@ -1521,7 +1565,7 @@ class Api {
         this.info = info;
         this.parser = new PortalLogParser();
         /** @inheritdoc */
-        this.getLists = () => __awaiter$2(this, void 0, void 0, function* () {
+        this.getLists = () => __awaiter$3(this, void 0, void 0, function* () {
             let page = yield requestPage(`/worlds/lists/${this.info.id}`);
             let getList = name => {
                 let names = [];
@@ -1540,7 +1584,7 @@ class Api {
             };
         });
         /** @inheritdoc */
-        this.setLists = lists => __awaiter$2(this, void 0, void 0, function* () {
+        this.setLists = lists => __awaiter$3(this, void 0, void 0, function* () {
             let makeSafe = list => encodeURIComponent(list.join('\n'));
             let body = `admins=${makeSafe(lists.adminlist)}`;
             body += `&modlist=${makeSafe(lists.modlist)}`;
@@ -1552,7 +1596,7 @@ class Api {
             });
         });
         /** @inheritdoc */
-        this.getOverview = () => __awaiter$2(this, void 0, void 0, function* () {
+        this.getOverview = () => __awaiter$3(this, void 0, void 0, function* () {
             let page = yield requestPage(`/worlds/${this.info.id}`);
             let firstMatch = (r, fallback = '') => {
                 let m = page.match(r);
@@ -1632,6 +1676,8 @@ class Storage$1 extends Storage {
     constructor(head) {
         super();
         this.head = head;
+        // For readability
+        this.head += '/';
     }
     get(key, fallback) {
         // JSON.parse correctly handles null so it's fine to declare this as string.
@@ -1677,7 +1723,7 @@ and limitations under the License.
 ***************************************************************************** */
 /* global Reflect, Promise */
 
-function __values(o) {
+function __values$1(o) {
     var m = typeof Symbol === "function" && o[Symbol.iterator],
         i = 0;
     if (m) return m.call(o);
@@ -1689,7 +1735,7 @@ function __values(o) {
     };
 }
 
-function __read(o, n) {
+function __read$1(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
     var i = m.call(o),
@@ -1716,7 +1762,7 @@ var api = function () {
         return menuSlider.classList.toggle('is-active');
     };
     try {
-        for (var _a = __values(document.querySelectorAll('.nav-slider-toggle')), _b = _a.next(); !_b.done; _b = _a.next()) {
+        for (var _a = __values$1(document.querySelectorAll('.nav-slider-toggle')), _b = _a.next(); !_b.done; _b = _a.next()) {
             var el = _b.value;
             el.addEventListener('click', toggleMenu);
         }
@@ -1761,8 +1807,8 @@ var api = function () {
     };
     var removeTab = function (content) {
         try {
-            for (var _a = __values(tabs.entries()), _b = _a.next(); !_b.done; _b = _a.next()) {
-                var _c = __read(_b.value, 2),
+            for (var _a = __values$1(tabs.entries()), _b = _a.next(); !_b.done; _b = _a.next()) {
+                var _c = __read$1(_b.value, 2),
                     nav = _c[0],
                     div = _c[1];
                 if (div == content) {
@@ -1800,7 +1846,7 @@ var api = function () {
         var group = groups.get(groupName);
         if (!group) return;
         try {
-            for (var _a = __values(group.querySelectorAll('span')), _b = _a.next(); !_b.done; _b = _a.next()) {
+            for (var _a = __values$1(group.querySelectorAll('span')), _b = _a.next(); !_b.done; _b = _a.next()) {
                 var child = _b.value;
                 // Unless someone has been purposely messing with the page, this is a safe assertion
                 removeTab(tabs.get(child));
@@ -1843,7 +1889,7 @@ var api = function () {
         if (typeof target == 'string') target = document.querySelector(target);
         var parent = document.importNode(template.content, true);
         try {
-            for (var rules_1 = __values(rules), rules_1_1 = rules_1.next(); !rules_1_1.done; rules_1_1 = rules_1.next()) {
+            for (var rules_1 = __values$1(rules), rules_1_1 = rules_1.next(); !rules_1_1.done; rules_1_1 = rules_1.next()) {
                 var rule = rules_1_1.value;
                 var element = parent.querySelector(rule.selector);
                 if (!element) {
@@ -1972,7 +2018,7 @@ function polyfill() {
     }
 }
 
-MessageBot.registerExtension('ui', function (ex) {
+MessageBot$1.registerExtension('ui', function (ex) {
     if (typeof document == 'undefined') {
         throw new Error('This extension cannot be loaded outside of a browser environment.');
     }
@@ -2064,7 +2110,7 @@ class TriggerListener extends RemovableMessageHelper {
             let responses = 0;
             for (let msg of this.messages) {
                 let checks = [checkJoins(player, msg), checkGroups(player, msg), this.triggerMatches(message, msg.trigger)];
-                if (checks.every(Boolean) && responses++ <= this.ex.storage.get('maxResponses', 3)) {
+                if (checks.every(Boolean) && ++responses <= this.ex.storage.get('maxResponses', 3)) {
                     this.ex.bot.send(msg.message, { name: player.name });
                 }
             }
@@ -2227,7 +2273,7 @@ class AnnouncementTab extends MessagesTab {
 
 var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n}\r\n\r\n.messages-container small {\r\n    color: #777;\r\n}\r\n";
 
-MessageBot.registerExtension('messages', function (ex, world) {
+MessageBot$1.registerExtension('messages', function (ex, world) {
     let listeners = [];
     ex.remove = () => listeners.forEach(l => l.remove());
     let hasLoaded = false;
@@ -2299,7 +2345,7 @@ var html = "<template>\r\n    <li>\r\n        <span>NAME</span>\r\n        <span
 
 var css$1 = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
 
-MessageBot.registerExtension('console', function (ex, world) {
+MessageBot$1.registerExtension('console', function (ex, world) {
     if (!ex.bot.getExports('ui')) {
         throw new Error('This extension should only be loaded in a browser, and must be loaded after the UI is loaded.');
     }
@@ -2397,7 +2443,106 @@ MessageBot.registerExtension('console', function (ex, world) {
     };
 });
 
-window['@bhmb/bot'] = { MessageBot };
+var html$1 = "<div class=\"container\">\r\n    <h3 class=\"title\">General Settings</h3>\r\n    <p class=\"control\">\r\n        <label>Minutes between announcements</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/announcementDelay\">\r\n        <br>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label>Maximum trigger responses to a message</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/maxResponses\">\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"console/logJoinIps\"> Show joining IPs in console\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input data-target=\"console/logUnparsedMessages\" type=\"checkbox\"> Log unparsed messages\r\n        </label>\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <h3 class=\"title\">Advanced Settings</h3>\r\n    <div class=\"message is-warning\">\r\n        <div class=\"message-header\">\r\n            <p>Warning</p>\r\n        </div>\r\n        <div class=\"message-body\">\r\n            <p>Changing these options can result in unexpected behavior.\r\n                <a href=\"https://github.com/Bibliofile/Blockheads-MessageBot/wiki/1.-Advanced-Options/\"\r\n                    target=\"_blank\">Read this first</a>\r\n            </p>\r\n        </div>\r\n    </div>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/regexTriggers\"> Parse triggers as RegEx\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/disableWhitespaceTrimming\"> Disable whitespace trimming\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"splitMessages\"> Split messages\r\n        </label>\r\n    </p>\r\n    <label class=\"label\">Split token:</label>\r\n    <p class=\"control\">\r\n        <input class=\"input\" type=\"text\" data-target=\"splitToken\">\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <nav class=\"panel\">\r\n        <p class=\"panel-heading\">Backup / Restore</p>\r\n\r\n        <a class=\"panel-block\" data-do=\"show_backup\">Show Backup</a>\r\n        <a class=\"panel-block\" data-do=\"download_backup\">Download Backup</a>\r\n        <a class=\"panel-block\" data-do=\"import_backup\">Import Backup</a>\r\n        <a class=\"panel-block\" data-do=\"upload_backup\">Upload Backup</a>\r\n    </nav>\r\n</div>";
+
+const settingDefaults = [
+// General
+['messages/announcementDelay', 10], ['messages/maxResponses', 3], ['console/logJoinIps', true], ['console/logUnparsedMessages', true],
+// Advanced
+['messages/regexTriggers', false], ['messages/disableWhitespaceTrimming', false], ['splitMessages', false], ['splitToken', '<split>']];
+MessageBot$1.registerExtension('settings', function (ex) {
+    if (!ex.bot.getExports('ui')) {
+        throw new Error('This extension must be loaded in a browser after the UI has been loaded.');
+    }
+    let settingsRoot = ex.bot.storage;
+    let ui = ex.bot.getExports('ui');
+    let tab = ui.addTab('Settings');
+    tab.innerHTML = html$1;
+    for (let [key, def] of settingDefaults) {
+        let el = tab.querySelector(`[data-target="${key}"]`);
+        if (typeof def == 'boolean') {
+            el.checked = settingsRoot.get(key, def);
+        } else {
+            el.value = String(settingsRoot.get(key, def));
+        }
+    }
+    tab.addEventListener('change', () => {
+        for (let [key, def] of settingDefaults) {
+            let el = tab.querySelector(`[data-target="${key}"]`);
+            if (typeof def == 'boolean') {
+                settingsRoot.set(key, el.checked);
+            } else if (typeof def == 'number') {
+                settingsRoot.set(key, +el.value);
+            } else {
+                settingsRoot.set(key, el.value);
+            }
+        }
+    });
+    function importBackup(backup) {
+        let parsed;
+        try {
+            parsed = JSON.parse(backup);
+            if (parsed === null) {
+                throw new Error('Invalid backup');
+            }
+        } catch (e) {
+            ui.notify('Invalid backup code. No action taken.');
+            return;
+        }
+        localStorage.clear();
+        Object.keys(parsed).forEach(key => {
+            localStorage.setItem(key, parsed[key]);
+        });
+        location.reload();
+    }
+    tab.querySelector('[data-do=show_backup]').addEventListener('click', () => {
+        // Must be loaded in a browser, so safe to use localStorage
+        let backup = JSON.stringify(localStorage).replace(/</g, '&lt;');
+        ui.alert(`<p>Copy this to a safe place.</p><textarea class="textarea">${backup}</textarea>`);
+    });
+    tab.querySelector('[data-do=import_backup]').addEventListener('click', () => {
+        ui.prompt('Enter your backup code, this will reload the page:', result => {
+            if (result) {
+                importBackup(result);
+            }
+        });
+    });
+    tab.querySelector('[data-do=download_backup]').addEventListener('click', () => {
+        let backup = JSON.stringify(localStorage, undefined, 4);
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(backup));
+        element.setAttribute('download', 'bot_backup.txt');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    });
+    tab.querySelector('[data-do=upload_backup]').addEventListener('click', () => {
+        if (!File || !FileReader || !FileList || !Blob) {
+            alert(`It looks like your browser doesn't support this.`);
+            return;
+        }
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.addEventListener('change', () => {
+            if (!input.files || input.files[0].type != 'text/plain') {
+                ui.notify('Upload a text file.');
+                return;
+            }
+            let reader = new FileReader();
+            reader.addEventListener('load', () => {
+                importBackup(reader.result);
+            });
+            reader.readAsText(input.files[0]);
+        });
+        input.click();
+    });
+    ex.remove = function () {
+        ui.removeTab(tab);
+    };
+});
+
+window['@bhmb/bot'] = { MessageBot: MessageBot$1 };
 const worldId = window.worldId;
 if (location.hostname != 'portal.theblockheads.net') {
     if (confirm('You are not on the portal, go there now?')) {
@@ -2408,15 +2553,16 @@ if (!worldId) {
     alert('You must be on a world page to start the bot');
     throw new Error('Bad page');
 }
-MessageBot.dependencies = { Api, getWorlds };
+MessageBot$1.dependencies = { Api, getWorlds };
 let info = {
     name: document.querySelector('#title').textContent,
     id: worldId + ''
 };
-let bot = new MessageBot(new Storage$1(''), info);
+let bot = new MessageBot$$1(new Storage$1(''), info);
 bot.addExtension('ui');
 bot.addExtension('console');
 document.querySelector('.nav-item').click();
 bot.addExtension('messages');
+bot.addExtension('settings');
 
 }());

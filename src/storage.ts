@@ -3,6 +3,8 @@ import { Storage as AStorage } from '@bhmb/bot'
 export class Storage extends AStorage {
     constructor(private head: string) {
         super()
+        // For readability
+        this.head += '/'
     }
 
     get<T>(key: string, fallback: T): T {

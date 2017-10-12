@@ -1,3 +1,4 @@
+import { MessageBot as CustomBot } from './bot'
 import { MessageBot } from '@bhmb/bot'
 import { Api, getWorlds } from 'blockheads-api/cloud'
 import { WorldInfo } from 'blockheads-api/api'
@@ -5,6 +6,7 @@ import { Storage } from './storage'
 import '@bhmb/ui'
 import '@bhmb/messages'
 import '@bhmb/console'
+import './settings'
 
 (window as any)['@bhmb/bot'] = { MessageBot }
 const worldId: string = (window as any).worldId
@@ -27,8 +29,9 @@ let info: WorldInfo = {
     id: worldId + ''
 }
 
-let bot = new MessageBot(new Storage(''), info)
+let bot = new CustomBot(new Storage(''), info)
 bot.addExtension('ui')
 bot.addExtension('console')
 ;(document.querySelector('.nav-item') as HTMLElement).click()
 bot.addExtension('messages')
+bot.addExtension('settings')
