@@ -1133,7 +1133,11 @@ class World {
          *
          * @param message the message to send
          */
-        this.send = (message) => this._api.send(message);
+        this.send = (message) => {
+            if (message.startsWith('/'))
+                this._events.onMessage.dispatch({ player: this.getPlayer('SERVER'), message });
+            return this._api.send(message);
+        };
         /**
          * Gets a specific player by name
          */
