@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.0.tgz#c43dffbfbd129e01d3435509c230628818c4fc5f"
+"@bhmb/bot@^7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.1.tgz#819d945e76ac2f191d7b008ed5fb5d6541adf129"
   dependencies:
     blockheads-api "^0.3.2"
     strongly-typed-events "^1.0.1"
@@ -181,9 +181,9 @@ blockheads-api@^0.3.2:
     simple-plist "^0.2.1"
     util.promisify "^1.0.0"
 
-blockheads-api@^0.3.3:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.4.tgz#62838ac3d1b9b103b2931c9e05d8304f9281b052"
+blockheads-api@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.5.tgz#3c4f6595413c7f326a0422bb100abd305466cc09"
   dependencies:
     simple-plist "^0.2.1"
     typed-promisify "^0.4.0"
