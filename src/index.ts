@@ -30,10 +30,17 @@ let info: WorldInfo = {
     id: worldId + ''
 }
 
-let bot = new CustomBot(new Storage(''), info)
-bot.addExtension('ui')
-bot.addExtension('console')
-;(document.querySelector('.nav-item') as HTMLElement).click()
-bot.addExtension('messages')
-bot.addExtension('settings')
-bot.addExtension('extensions')
+async function main() {
+    let bot = new CustomBot(new Storage(''), info)
+    bot.addExtension('ui')
+    bot.addExtension('console')
+    ;(document.querySelector('.nav-item') as HTMLElement).click()
+    bot.addExtension('messages')
+    bot.addExtension('settings')
+    bot.addExtension('extensions')
+
+    await bot.world.start()
+    await bot.world.getLists(true)
+}
+main()
+

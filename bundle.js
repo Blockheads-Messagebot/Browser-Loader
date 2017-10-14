@@ -31,6 +31,21 @@ function __rest(s, e) {
     return t;
 }
 
+
+
+
+
+
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
 class MessageBotExtension {
     /**
      * Creates a new extension.
@@ -2742,12 +2757,19 @@ let info = {
     name: document.querySelector('#title').textContent,
     id: worldId + ''
 };
-let bot = new MessageBot$$1(new Storage$1(''), info);
-bot.addExtension('ui');
-bot.addExtension('console');
-document.querySelector('.nav-item').click();
-bot.addExtension('messages');
-bot.addExtension('settings');
-bot.addExtension('extensions');
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bot = new MessageBot$$1(new Storage$1(''), info);
+        bot.addExtension('ui');
+        bot.addExtension('console');
+        document.querySelector('.nav-item').click();
+        bot.addExtension('messages');
+        bot.addExtension('settings');
+        bot.addExtension('extensions');
+        yield bot.world.start();
+        yield bot.world.getLists(true);
+    });
+}
+main();
 
 }());
