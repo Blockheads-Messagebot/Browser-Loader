@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.0.0-a8":
-  version "7.0.0-a8"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.0-a8.tgz#c60c6ae577dacd080e01399d2c5f2d5965d579ec"
+"@bhmb/bot@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.0.tgz#c43dffbfbd129e01d3435509c230628818c4fc5f"
   dependencies:
     blockheads-api "^0.3.2"
     strongly-typed-events "^1.0.1"
@@ -743,12 +743,6 @@ resolve@^1.1.6, resolve@^1.3.2, resolve@^1.4.0:
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.4.0.tgz#a75be01c53da25d934a98ebd0e4c4a7312f92a86"
   dependencies:
     path-parse "^1.0.5"
-
-rollup-plugin-babel@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-babel/-/rollup-plugin-babel-3.0.2.tgz#a2765dea0eaa8aece351c983573300d17497495b"
-  dependencies:
-    rollup-pluginutils "^1.5.0"
 
 rollup-plugin-commonjs@^8.2.1:
   version "8.2.1"

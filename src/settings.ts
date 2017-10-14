@@ -14,13 +14,11 @@ const settingDefaults: [string, string | number | boolean][] = [
     ['messages/disableWhitespaceTrimming', false],
     ['splitMessages', false],
     ['splitToken', '<split>'],
+    ['extensions/devMode', false],
+    ['extensions/repos', 'https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json'],
 ]
 
 MessageBot.registerExtension('settings', function (ex) {
-    if (!ex.bot.getExports('ui')) {
-        throw new Error('This extension must be loaded in a browser after the UI has been loaded.')
-    }
-
     let settingsRoot = ex.bot.storage
     let ui = ex.bot.getExports('ui') as UIExtensionExports
 
@@ -103,7 +101,7 @@ MessageBot.registerExtension('settings', function (ex) {
 
     ;(tab.querySelector('[data-do=upload_backup]') as HTMLElement).addEventListener('click', () => {
         if (!File || !FileReader || !FileList || !Blob) {
-            alert(`It looks like your browser doesn't support this.`)
+            ui.notify(`It looks like your browser doesn't support this.`)
             return
         }
 

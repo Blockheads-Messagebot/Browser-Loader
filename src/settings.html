@@ -53,6 +53,15 @@
     <p class="control">
         <input class="input" type="text" data-target="splitToken">
     </p>
+    <p class="control">
+        <label class="checkbox">
+            <input type="checkbox" data-target="extensions/devMode"> Developer mode
+        </label>
+    </p>
+    <label class="label">Extension Repsitory URLs (one per line, reload required to apply):</label>
+    <p class="control">
+        <textarea class="textarea is-fluid" type="text" data-target="extensions/repos"></textarea>
+    </p>
 
     <hr>
 
@@ -64,4 +73,6 @@
         <a class="panel-block" data-do="import_backup">Import Backup</a>
         <a class="panel-block" data-do="upload_backup">Upload Backup</a>
     </nav>
+
+    <br>
 </div>

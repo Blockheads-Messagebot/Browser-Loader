@@ -23,37 +23,40 @@ and limitations under the License.
 
 function __rest(s, e) {
     var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
     return t;
 }
 
 class MessageBotExtension {
-  /**
-   * Creates a new extension.
-   * @param id the extension id
-   * @param bot the bot that this extension is loaded from
-   */
-  constructor(id, bot) {
-    this.bot = bot;
     /**
-     * Any exports that other extensions may call.
+     * Creates a new extension.
+     * @param id the extension id
+     * @param bot the bot that this extension is loaded from
      */
-    this.exports = {};
-    this.storage = bot.storage.prefix(id);
-    this.world = bot.world;
-  }
-  /**
-   * Removes the extension, listeners and ui should be removed here. Stored settings should not be removed.
-   */
-  remove() {}
-  /**
-   * Removes the extension. All listeners should be removed here.
-   */
-  uninstall() {
-    this.remove();
-    this.storage.clear();
-  }
+    constructor(id, bot) {
+        this.bot = bot;
+        /**
+         * Any exports that other extensions may call.
+         */
+        this.exports = {};
+        this.storage = bot.storage.prefix(id);
+        this.world = bot.world;
+    }
+    /**
+     * Removes the extension, listeners and ui should be removed here. Stored settings should not be removed.
+     */
+    remove() { }
+    /**
+     * Removes the extension. All listeners should be removed here.
+     */
+    uninstall() {
+        this.remove();
+        this.storage.clear();
+    }
 }
 
 function arrayContainsAny(haystack, ...needles) {
@@ -163,14 +166,18 @@ class Player {
      * @return true if the player is on the blacklist.
      */
     get isBanned() {
-        return !this.isStaff && this._lists.blacklist.some(entry => {
+        return !this.isStaff && this._lists.blacklist
+            .some(entry => {
             // We don't know the current player's device ID so can't check for that on the blacklist
             // If the player's name is on the blacklist, they are banned.
             // If an IP the player has used is banned, they are *probably* banned, so guess that they are.
             // Remove device ID from blacklist entry, if there is one
-            if (entry.includes(' \\')) entry = entry.substr(0, entry.indexOf(' \\'));
-            if (entry == this._name) return true;
-            if (this._info.ips.includes(entry)) return true;
+            if (entry.includes(' \\'))
+                entry = entry.substr(0, entry.indexOf(' \\'));
+            if (entry == this._name)
+                return true;
+            if (this._info.ips.includes(entry))
+                return true;
             return false;
         });
     }
@@ -187,729 +194,701 @@ function createCommonjsModule(fn, module) {
 }
 
 var stronglyTypedEvents = createCommonjsModule(function (module, exports) {
-    /*!
-     * Strongly Typed Events for TypeScript - 1.0.1
-     * https://github.com/KeesCBakker/StronlyTypedEvents/
-     * http://keestalkstech.com
+/*!
+ * Strongly Typed Events for TypeScript - 1.0.1
+ * https://github.com/KeesCBakker/StronlyTypedEvents/
+ * http://keestalkstech.com
+ *
+ * Copyright Kees C. Bakker / KeesTalksTech
+ * Released under the MIT license
+ */
+"use strict";
+var __extends = (commonjsGlobal && commonjsGlobal.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+"use strict";
+/**
+ * Stores a handler. Manages execution meta data.
+ * @class Subscription
+ * @template TEventHandler
+ */
+var Subscription = (function () {
+    /**
+     * Creates an instance of Subscription.
      *
-     * Copyright Kees C. Bakker / KeesTalksTech
-     * Released under the MIT license
+     * @param {TEventHandler} handler The handler for the subscription.
+     * @param {boolean} isOnce Indicates if the handler should only be executed` once.
      */
-    "use strict";
-
-    var __extends = commonjsGlobal && commonjsGlobal.__extends || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-    "use strict";
+    function Subscription(handler, isOnce) {
+        this.handler = handler;
+        this.isOnce = isOnce;
+        /**
+         * Indicates if the subscription has been executed before.
+         */
+        this.isExecuted = false;
+    }
     /**
-     * Stores a handler. Manages execution meta data.
-     * @class Subscription
-     * @template TEventHandler
+     * Executes the handler.
+     *
+     * @param {boolean} executeAsync True if the even should be executed async.
+     * @param {*} The scope the scope of the event.
+     * @param {IArguments} args The arguments for the event.
      */
-    var Subscription = function () {
-        /**
-         * Creates an instance of Subscription.
-         *
-         * @param {TEventHandler} handler The handler for the subscription.
-         * @param {boolean} isOnce Indicates if the handler should only be executed` once.
-         */
-        function Subscription(handler, isOnce) {
-            this.handler = handler;
-            this.isOnce = isOnce;
-            /**
-             * Indicates if the subscription has been executed before.
-             */
-            this.isExecuted = false;
-        }
-        /**
-         * Executes the handler.
-         *
-         * @param {boolean} executeAsync True if the even should be executed async.
-         * @param {*} The scope the scope of the event.
-         * @param {IArguments} args The arguments for the event.
-         */
-        Subscription.prototype.execute = function (executeAsync, scope, args) {
-            if (!this.isOnce || !this.isExecuted) {
-                this.isExecuted = true;
-                var fn = this.handler;
-                if (executeAsync) {
-                    setTimeout(function () {
-                        fn.apply(scope, args);
-                    }, 1);
-                } else {
+    Subscription.prototype.execute = function (executeAsync, scope, args) {
+        if (!this.isOnce || !this.isExecuted) {
+            this.isExecuted = true;
+            var fn = this.handler;
+            if (executeAsync) {
+                setTimeout(function () {
                     fn.apply(scope, args);
-                }
+                }, 1);
             }
-        };
-        return Subscription;
-    }();
-    exports.Subscription = Subscription;
-    /**
-     * Base class for implementation of the dispatcher. It facilitates the subscribe
-     * and unsubscribe methods based on generic handlers. The TEventType specifies
-     * the type of event that should be exposed. Use the asEvent to expose the
-     * dispatcher as event.
-     */
-    var DispatcherBase = function () {
-        function DispatcherBase() {
-            this._wrap = new DispatcherWrapper(this);
-            this._subscriptions = new Array();
+            else {
+                fn.apply(scope, args);
+            }
         }
-        /**
-         * Subscribe to the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherBase.prototype.subscribe = function (fn) {
-            if (fn) {
-                this._subscriptions.push(new Subscription(fn, false));
-            }
-        };
-        /**
-         * Subscribe to the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherBase.prototype.sub = function (fn) {
-            this.subscribe(fn);
-        };
-        /**
-         * Subscribe once to the event with the specified name.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherBase.prototype.one = function (fn) {
-            if (fn) {
-                this._subscriptions.push(new Subscription(fn, true));
-            }
-        };
-        /**
-         * Checks it the event has a subscription for the specified handler.
-         * @param fn The event handler.
-         */
-        DispatcherBase.prototype.has = function (fn) {
-            if (fn) {
-                for (var _i = 0, _a = this._subscriptions; _i < _a.length; _i++) {
-                    var sub = _a[_i];
-                    if (sub.handler == fn) {
-                        return true;
-                    }
+    };
+    return Subscription;
+}());
+exports.Subscription = Subscription;
+/**
+ * Base class for implementation of the dispatcher. It facilitates the subscribe
+ * and unsubscribe methods based on generic handlers. The TEventType specifies
+ * the type of event that should be exposed. Use the asEvent to expose the
+ * dispatcher as event.
+ */
+var DispatcherBase = (function () {
+    function DispatcherBase() {
+        this._wrap = new DispatcherWrapper(this);
+        this._subscriptions = new Array();
+    }
+    /**
+     * Subscribe to the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherBase.prototype.subscribe = function (fn) {
+        if (fn) {
+            this._subscriptions.push(new Subscription(fn, false));
+        }
+    };
+    /**
+     * Subscribe to the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherBase.prototype.sub = function (fn) {
+        this.subscribe(fn);
+    };
+    /**
+     * Subscribe once to the event with the specified name.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherBase.prototype.one = function (fn) {
+        if (fn) {
+            this._subscriptions.push(new Subscription(fn, true));
+        }
+    };
+    /**
+     * Checks it the event has a subscription for the specified handler.
+     * @param fn The event handler.
+     */
+    DispatcherBase.prototype.has = function (fn) {
+        if (fn) {
+            for (var _i = 0, _a = this._subscriptions; _i < _a.length; _i++) {
+                var sub = _a[_i];
+                if (sub.handler == fn) {
+                    return true;
                 }
             }
-            return false;
-        };
-        /**
-         * Unsubscribes the handler from the dispatcher.
-         * @param fn The event handler.
-         */
-        DispatcherBase.prototype.unsubscribe = function (fn) {
-            if (fn) {
-                for (var i = 0; i < this._subscriptions.length; i++) {
-                    var sub = this._subscriptions[i];
-                    if (sub.handler == fn) {
-                        this._subscriptions.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        };
-        /**
-         * Unsubscribes the handler from the dispatcher.
-         * @param fn The event handler.
-         */
-        DispatcherBase.prototype.unsub = function (fn) {
-            this.unsubscribe(fn);
-        };
-        /**
-         * Generic dispatch will dispatch the handlers with the given arguments.
-         *
-         * @protected
-         * @param {boolean} executeAsync True if the even should be executed async.
-         * @param {*} The scope the scope of the event.
-         * @param {IArguments} args The arguments for the event.
-         */
-        DispatcherBase.prototype._dispatch = function (executeAsync, scope, args) {
+        }
+        return false;
+    };
+    /**
+     * Unsubscribes the handler from the dispatcher.
+     * @param fn The event handler.
+     */
+    DispatcherBase.prototype.unsubscribe = function (fn) {
+        if (fn) {
             for (var i = 0; i < this._subscriptions.length; i++) {
                 var sub = this._subscriptions[i];
-                if (sub.isOnce) {
-                    if (sub.isExecuted === true) {
-                        continue;
-                    }
+                if (sub.handler == fn) {
                     this._subscriptions.splice(i, 1);
-                    i--;
+                    break;
                 }
-                sub.execute(executeAsync, scope, args);
             }
-        };
-        /**
-         * Creates an event from the dispatcher. Will return the dispatcher
-         * in a wrapper. This will prevent exposure of any dispatcher methods.
-         */
-        DispatcherBase.prototype.asEvent = function () {
-            return this._wrap;
-        };
-        /**
-         * Clears all the subscriptions.
-         */
-        DispatcherBase.prototype.clear = function () {
-            this._subscriptions.splice(0, this._subscriptions.length);
-        };
-        return DispatcherBase;
-    }();
-    exports.DispatcherBase = DispatcherBase;
-    /**
-     * Dispatcher implementation for events. Can be used to subscribe, unsubscribe
-     * or dispatch events. Use the ToEvent() method to expose the event.
-     */
-    var EventDispatcher = function (_super) {
-        __extends(EventDispatcher, _super);
-        /**
-         * Creates a new EventDispatcher instance.
-         */
-        function EventDispatcher() {
-            return _super.call(this) || this;
         }
-        /**
-         * Dispatches the event.
-         * @param sender The sender.
-         * @param args The arguments object.
-         */
-        EventDispatcher.prototype.dispatch = function (sender, args) {
-            this._dispatch(false, this, arguments);
-        };
-        /**
-         * Dispatches the events thread.
-         * @param sender The sender.
-         * @param args The arguments object.
-         */
-        EventDispatcher.prototype.dispatchAsync = function (sender, args) {
-            this._dispatch(true, this, arguments);
-        };
-        /**
-         * Creates an event from the dispatcher. Will return the dispatcher
-         * in a wrapper. This will prevent exposure of any dispatcher methods.
-         */
-        EventDispatcher.prototype.asEvent = function () {
-            return _super.prototype.asEvent.call(this);
-        };
-        return EventDispatcher;
-    }(DispatcherBase);
-    exports.EventDispatcher = EventDispatcher;
-    /**
-     * The dispatcher handles the storage of subsciptions and facilitates
-     * subscription, unsubscription and dispatching of a simple event
-     */
-    var SimpleEventDispatcher = function (_super) {
-        __extends(SimpleEventDispatcher, _super);
-        /**
-         * Creates a new SimpleEventDispatcher instance.
-         */
-        function SimpleEventDispatcher() {
-            return _super.call(this) || this;
-        }
-        /**
-         * Dispatches the event.
-         * @param args The arguments object.
-         */
-        SimpleEventDispatcher.prototype.dispatch = function (args) {
-            this._dispatch(false, this, arguments);
-        };
-        /**
-         * Dispatches the events thread.
-         * @param args The arguments object.
-         */
-        SimpleEventDispatcher.prototype.dispatchAsync = function (args) {
-            this._dispatch(true, this, arguments);
-        };
-        /**
-         * Creates an event from the dispatcher. Will return the dispatcher
-         * in a wrapper. This will prevent exposure of any dispatcher methods.
-         */
-        SimpleEventDispatcher.prototype.asEvent = function () {
-            return _super.prototype.asEvent.call(this);
-        };
-        return SimpleEventDispatcher;
-    }(DispatcherBase);
-    exports.SimpleEventDispatcher = SimpleEventDispatcher;
-    /**
-     * The dispatcher handles the storage of subsciptions and facilitates
-     * subscription, unsubscription and dispatching of a signal event.
-     */
-    var SignalDispatcher = function (_super) {
-        __extends(SignalDispatcher, _super);
-        /**
-         * Creates a new SignalDispatcher instance.
-         */
-        function SignalDispatcher() {
-            return _super.call(this) || this;
-        }
-        /**
-         * Dispatches the signal.
-         */
-        SignalDispatcher.prototype.dispatch = function () {
-            this._dispatch(false, this, arguments);
-        };
-        /**
-         * Dispatches the signal threaded.
-         */
-        SignalDispatcher.prototype.dispatchAsync = function () {
-            this._dispatch(true, this, arguments);
-        };
-        /**
-         * Creates an event from the dispatcher. Will return the dispatcher
-         * in a wrapper. This will prevent exposure of any dispatcher methods.
-         */
-        SignalDispatcher.prototype.asEvent = function () {
-            return _super.prototype.asEvent.call(this);
-        };
-        return SignalDispatcher;
-    }(DispatcherBase);
-    exports.SignalDispatcher = SignalDispatcher;
-    /**
-     * Hides the implementation of the event dispatcher. Will expose methods that
-     * are relevent to the event.
-     */
-    var DispatcherWrapper = function () {
-        /**
-         * Creates a new EventDispatcherWrapper instance.
-         * @param dispatcher The dispatcher.
-         */
-        function DispatcherWrapper(dispatcher) {
-            this._subscribe = function (fn) {
-                return dispatcher.subscribe(fn);
-            };
-            this._unsubscribe = function (fn) {
-                return dispatcher.unsubscribe(fn);
-            };
-            this._one = function (fn) {
-                return dispatcher.one(fn);
-            };
-            this._has = function (fn) {
-                return dispatcher.has(fn);
-            };
-            this._clear = function () {
-                return dispatcher.clear();
-            };
-        }
-        /**
-         * Subscribe to the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherWrapper.prototype.subscribe = function (fn) {
-            this._subscribe(fn);
-        };
-        /**
-         * Subscribe to the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherWrapper.prototype.sub = function (fn) {
-            this.subscribe(fn);
-        };
-        /**
-         * Unsubscribe from the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherWrapper.prototype.unsubscribe = function (fn) {
-            this._unsubscribe(fn);
-        };
-        /**
-         * Unsubscribe from the event dispatcher.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherWrapper.prototype.unsub = function (fn) {
-            this.unsubscribe(fn);
-        };
-        /**
-         * Subscribe once to the event with the specified name.
-         * @param fn The event handler that is called when the event is dispatched.
-         */
-        DispatcherWrapper.prototype.one = function (fn) {
-            this._one(fn);
-        };
-        /**
-         * Checks it the event has a subscription for the specified handler.
-         * @param fn The event handler.
-         */
-        DispatcherWrapper.prototype.has = function (fn) {
-            return this._has(fn);
-        };
-        /**
-         * Clears all the subscriptions.
-         */
-        DispatcherWrapper.prototype.clear = function () {
-            this._clear();
-        };
-        return DispatcherWrapper;
-    }();
-    exports.DispatcherWrapper = DispatcherWrapper;
-    /**
-     * Base class for event lists classes. Implements the get and remove.
-     */
-    var EventListBase = function () {
-        function EventListBase() {
-            this._events = {};
-        }
-        /**
-         * Gets the dispatcher associated with the name.
-         * @param name The name of the event.
-         */
-        EventListBase.prototype.get = function (name) {
-            var event = this._events[name];
-            if (event) {
-                return event;
-            }
-            event = this.createDispatcher();
-            this._events[name] = event;
-            return event;
-        };
-        /**
-         * Removes the dispatcher associated with the name.
-         * @param name The name of the event.
-         */
-        EventListBase.prototype.remove = function (name) {
-            this._events[name] = null;
-        };
-        return EventListBase;
-    }();
-    exports.EventListBase = EventListBase;
-    /**
-     * Storage class for multiple events that are accessible by name.
-     * Events dispatchers are automatically created.
-     */
-    var EventList = function (_super) {
-        __extends(EventList, _super);
-        /**
-         * Creates a new EventList instance.
-         */
-        function EventList() {
-            return _super.call(this) || this;
-        }
-        /**
-         * Creates a new dispatcher instance.
-         */
-        EventList.prototype.createDispatcher = function () {
-            return new EventDispatcher();
-        };
-        return EventList;
-    }(EventListBase);
-    exports.EventList = EventList;
-    /**
-     * Storage class for multiple simple events that are accessible by name.
-     * Events dispatchers are automatically created.
-     */
-    var SimpleEventList = function (_super) {
-        __extends(SimpleEventList, _super);
-        /**
-         * Creates a new SimpleEventList instance.
-         */
-        function SimpleEventList() {
-            return _super.call(this) || this;
-        }
-        /**
-         * Creates a new dispatcher instance.
-         */
-        SimpleEventList.prototype.createDispatcher = function () {
-            return new SimpleEventDispatcher();
-        };
-        return SimpleEventList;
-    }(EventListBase);
-    exports.SimpleEventList = SimpleEventList;
-    /**
-     * Storage class for multiple signal events that are accessible by name.
-     * Events dispatchers are automatically created.
-     */
-    var SignalList = function (_super) {
-        __extends(SignalList, _super);
-        /**
-         * Creates a new SignalList instance.
-         */
-        function SignalList() {
-            return _super.call(this) || this;
-        }
-        /**
-         * Creates a new dispatcher instance.
-         */
-        SignalList.prototype.createDispatcher = function () {
-            return new SignalDispatcher();
-        };
-        return SignalList;
-    }(EventListBase);
-    exports.SignalList = SignalList;
-    /**
-     * Extends objects with event handling capabilities.
-     */
-    var EventHandlingBase = function () {
-        function EventHandlingBase() {
-            this._events = new EventList();
-        }
-        Object.defineProperty(EventHandlingBase.prototype, "events", {
-            /**
-             * Gets the list with all the event dispatchers.
-             */
-            get: function () {
-                return this._events;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.subscribe = function (name, fn) {
-            this._events.get(name).subscribe(fn);
-        };
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.sub = function (name, fn) {
-            this.subscribe(name, fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.unsubscribe = function (name, fn) {
-            this._events.get(name).unsubscribe(fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.unsub = function (name, fn) {
-            this.unsubscribe(name, fn);
-        };
-        /**
-         * Subscribes to once the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.one = function (name, fn) {
-            this._events.get(name).one(fn);
-        };
-        /**
-         * Subscribes to once the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        EventHandlingBase.prototype.has = function (name, fn) {
-            return this._events.get(name).has(fn);
-        };
-        return EventHandlingBase;
-    }();
-    exports.EventHandlingBase = EventHandlingBase;
-    /**
-     * Extends objects with simple event handling capabilities.
-     */
-    var SimpleEventHandlingBase = function () {
-        function SimpleEventHandlingBase() {
-            this._events = new SimpleEventList();
-        }
-        Object.defineProperty(SimpleEventHandlingBase.prototype, "events", {
-            get: function () {
-                return this._events;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.subscribe = function (name, fn) {
-            this._events.get(name).subscribe(fn);
-        };
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.sub = function (name, fn) {
-            this.subscribe(name, fn);
-        };
-        /**
-         * Subscribes once to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.one = function (name, fn) {
-            this._events.get(name).one(fn);
-        };
-        /**
-         * Checks it the event has a subscription for the specified handler.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.has = function (name, fn) {
-            return this._events.get(name).has(fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.unsubscribe = function (name, fn) {
-            this._events.get(name).unsubscribe(fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SimpleEventHandlingBase.prototype.unsub = function (name, fn) {
-            this.unsubscribe(name, fn);
-        };
-        return SimpleEventHandlingBase;
-    }();
-    exports.SimpleEventHandlingBase = SimpleEventHandlingBase;
-    /**
-     * Extends objects with signal event handling capabilities.
-     */
-    var SignalHandlingBase = function () {
-        function SignalHandlingBase() {
-            this._events = new SignalList();
-        }
-        Object.defineProperty(SignalHandlingBase.prototype, "events", {
-            get: function () {
-                return this._events;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Subscribes once to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.one = function (name, fn) {
-            this._events.get(name).one(fn);
-        };
-        /**
-         * Checks it the event has a subscription for the specified handler.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.has = function (name, fn) {
-            return this._events.get(name).has(fn);
-        };
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.subscribe = function (name, fn) {
-            this._events.get(name).subscribe(fn);
-        };
-        /**
-         * Subscribes to the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.sub = function (name, fn) {
-            this.subscribe(name, fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.unsubscribe = function (name, fn) {
-            this._events.get(name).unsubscribe(fn);
-        };
-        /**
-         * Unsubscribes from the event with the specified name.
-         * @param name The name of the event.
-         * @param fn The event handler.
-         */
-        SignalHandlingBase.prototype.unsub = function (name, fn) {
-            this.unsubscribe(name, fn);
-        };
-        return SignalHandlingBase;
-    }();
-    exports.SignalHandlingBase = SignalHandlingBase;
-    function createEventDispatcher() {
-        return new EventDispatcher();
-    }
-    exports.createEventDispatcher = createEventDispatcher;
-    
-    function createEventList() {
-        return new EventList();
-    }
-    exports.createEventList = createEventList;
-    function createSimpleEventDispatcher() {
-        return new SimpleEventDispatcher();
-    }
-    exports.createSimpleEventDispatcher = createSimpleEventDispatcher;
-    
-    function createSimpleEventList() {
-        return new SimpleEventList();
-    }
-    exports.createSimpleEventList = createSimpleEventList;
-    function createSignalDispatcher() {
-        return new SignalDispatcher();
-    }
-    exports.createSignalDispatcher = createSignalDispatcher;
-    
-    function createSignalList() {
-        return new SignalList();
-    }
-    exports.createSignalList = createSignalList;
-    
-    var StronglyTypedEventsStatic = {
-        EventList: EventList,
-        SimpleEventList: SimpleEventList,
-        SignalList: SignalList,
-        createEventList: createEventList,
-        createSimpleEventList: createSimpleEventList,
-        createSignalList: createSignalList,
-        EventDispatcher: EventDispatcher,
-        SimpleEventDispatcher: SimpleEventDispatcher,
-        SignalDispatcher: SignalDispatcher,
-        EventHandlingBase: EventHandlingBase,
-        SimpleEventHandlingBase: SimpleEventHandlingBase,
-        SignalHandlingBase: SignalHandlingBase,
-        createEventDispatcher: createEventDispatcher,
-        createSimpleEventDispatcher: createSimpleEventDispatcher,
-        createSignalDispatcher: createSignalDispatcher,
-        EventListBase: EventListBase,
-        DispatcherBase: DispatcherBase,
-        DispatcherWrapper: DispatcherWrapper
     };
-    exports.IStronglyTypedEvents = StronglyTypedEventsStatic;
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.default = StronglyTypedEventsStatic;
+    /**
+     * Unsubscribes the handler from the dispatcher.
+     * @param fn The event handler.
+     */
+    DispatcherBase.prototype.unsub = function (fn) {
+        this.unsubscribe(fn);
+    };
+    /**
+     * Generic dispatch will dispatch the handlers with the given arguments.
+     *
+     * @protected
+     * @param {boolean} executeAsync True if the even should be executed async.
+     * @param {*} The scope the scope of the event.
+     * @param {IArguments} args The arguments for the event.
+     */
+    DispatcherBase.prototype._dispatch = function (executeAsync, scope, args) {
+        for (var i = 0; i < this._subscriptions.length; i++) {
+            var sub = this._subscriptions[i];
+            if (sub.isOnce) {
+                if (sub.isExecuted === true) {
+                    continue;
+                }
+                this._subscriptions.splice(i, 1);
+                i--;
+            }
+            sub.execute(executeAsync, scope, args);
+        }
+    };
+    /**
+     * Creates an event from the dispatcher. Will return the dispatcher
+     * in a wrapper. This will prevent exposure of any dispatcher methods.
+     */
+    DispatcherBase.prototype.asEvent = function () {
+        return this._wrap;
+    };
+    /**
+     * Clears all the subscriptions.
+     */
+    DispatcherBase.prototype.clear = function () {
+        this._subscriptions.splice(0, this._subscriptions.length);
+    };
+    return DispatcherBase;
+}());
+exports.DispatcherBase = DispatcherBase;
+/**
+ * Dispatcher implementation for events. Can be used to subscribe, unsubscribe
+ * or dispatch events. Use the ToEvent() method to expose the event.
+ */
+var EventDispatcher = (function (_super) {
+    __extends(EventDispatcher, _super);
+    /**
+     * Creates a new EventDispatcher instance.
+     */
+    function EventDispatcher() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Dispatches the event.
+     * @param sender The sender.
+     * @param args The arguments object.
+     */
+    EventDispatcher.prototype.dispatch = function (sender, args) {
+        this._dispatch(false, this, arguments);
+    };
+    /**
+     * Dispatches the events thread.
+     * @param sender The sender.
+     * @param args The arguments object.
+     */
+    EventDispatcher.prototype.dispatchAsync = function (sender, args) {
+        this._dispatch(true, this, arguments);
+    };
+    /**
+     * Creates an event from the dispatcher. Will return the dispatcher
+     * in a wrapper. This will prevent exposure of any dispatcher methods.
+     */
+    EventDispatcher.prototype.asEvent = function () {
+        return _super.prototype.asEvent.call(this);
+    };
+    return EventDispatcher;
+}(DispatcherBase));
+exports.EventDispatcher = EventDispatcher;
+/**
+ * The dispatcher handles the storage of subsciptions and facilitates
+ * subscription, unsubscription and dispatching of a simple event
+ */
+var SimpleEventDispatcher = (function (_super) {
+    __extends(SimpleEventDispatcher, _super);
+    /**
+     * Creates a new SimpleEventDispatcher instance.
+     */
+    function SimpleEventDispatcher() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Dispatches the event.
+     * @param args The arguments object.
+     */
+    SimpleEventDispatcher.prototype.dispatch = function (args) {
+        this._dispatch(false, this, arguments);
+    };
+    /**
+     * Dispatches the events thread.
+     * @param args The arguments object.
+     */
+    SimpleEventDispatcher.prototype.dispatchAsync = function (args) {
+        this._dispatch(true, this, arguments);
+    };
+    /**
+     * Creates an event from the dispatcher. Will return the dispatcher
+     * in a wrapper. This will prevent exposure of any dispatcher methods.
+     */
+    SimpleEventDispatcher.prototype.asEvent = function () {
+        return _super.prototype.asEvent.call(this);
+    };
+    return SimpleEventDispatcher;
+}(DispatcherBase));
+exports.SimpleEventDispatcher = SimpleEventDispatcher;
+/**
+ * The dispatcher handles the storage of subsciptions and facilitates
+ * subscription, unsubscription and dispatching of a signal event.
+ */
+var SignalDispatcher = (function (_super) {
+    __extends(SignalDispatcher, _super);
+    /**
+     * Creates a new SignalDispatcher instance.
+     */
+    function SignalDispatcher() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Dispatches the signal.
+     */
+    SignalDispatcher.prototype.dispatch = function () {
+        this._dispatch(false, this, arguments);
+    };
+    /**
+     * Dispatches the signal threaded.
+     */
+    SignalDispatcher.prototype.dispatchAsync = function () {
+        this._dispatch(true, this, arguments);
+    };
+    /**
+     * Creates an event from the dispatcher. Will return the dispatcher
+     * in a wrapper. This will prevent exposure of any dispatcher methods.
+     */
+    SignalDispatcher.prototype.asEvent = function () {
+        return _super.prototype.asEvent.call(this);
+    };
+    return SignalDispatcher;
+}(DispatcherBase));
+exports.SignalDispatcher = SignalDispatcher;
+/**
+ * Hides the implementation of the event dispatcher. Will expose methods that
+ * are relevent to the event.
+ */
+var DispatcherWrapper = (function () {
+    /**
+     * Creates a new EventDispatcherWrapper instance.
+     * @param dispatcher The dispatcher.
+     */
+    function DispatcherWrapper(dispatcher) {
+        this._subscribe = function (fn) { return dispatcher.subscribe(fn); };
+        this._unsubscribe = function (fn) { return dispatcher.unsubscribe(fn); };
+        this._one = function (fn) { return dispatcher.one(fn); };
+        this._has = function (fn) { return dispatcher.has(fn); };
+        this._clear = function () { return dispatcher.clear(); };
+    }
+    /**
+     * Subscribe to the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherWrapper.prototype.subscribe = function (fn) {
+        this._subscribe(fn);
+    };
+    /**
+     * Subscribe to the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherWrapper.prototype.sub = function (fn) {
+        this.subscribe(fn);
+    };
+    /**
+     * Unsubscribe from the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherWrapper.prototype.unsubscribe = function (fn) {
+        this._unsubscribe(fn);
+    };
+    /**
+     * Unsubscribe from the event dispatcher.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherWrapper.prototype.unsub = function (fn) {
+        this.unsubscribe(fn);
+    };
+    /**
+     * Subscribe once to the event with the specified name.
+     * @param fn The event handler that is called when the event is dispatched.
+     */
+    DispatcherWrapper.prototype.one = function (fn) {
+        this._one(fn);
+    };
+    /**
+     * Checks it the event has a subscription for the specified handler.
+     * @param fn The event handler.
+     */
+    DispatcherWrapper.prototype.has = function (fn) {
+        return this._has(fn);
+    };
+    /**
+     * Clears all the subscriptions.
+     */
+    DispatcherWrapper.prototype.clear = function () {
+        this._clear();
+    };
+    return DispatcherWrapper;
+}());
+exports.DispatcherWrapper = DispatcherWrapper;
+/**
+ * Base class for event lists classes. Implements the get and remove.
+ */
+var EventListBase = (function () {
+    function EventListBase() {
+        this._events = {};
+    }
+    /**
+     * Gets the dispatcher associated with the name.
+     * @param name The name of the event.
+     */
+    EventListBase.prototype.get = function (name) {
+        var event = this._events[name];
+        if (event) {
+            return event;
+        }
+        event = this.createDispatcher();
+        this._events[name] = event;
+        return event;
+    };
+    /**
+     * Removes the dispatcher associated with the name.
+     * @param name The name of the event.
+     */
+    EventListBase.prototype.remove = function (name) {
+        this._events[name] = null;
+    };
+    return EventListBase;
+}());
+exports.EventListBase = EventListBase;
+/**
+ * Storage class for multiple events that are accessible by name.
+ * Events dispatchers are automatically created.
+ */
+var EventList = (function (_super) {
+    __extends(EventList, _super);
+    /**
+     * Creates a new EventList instance.
+     */
+    function EventList() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Creates a new dispatcher instance.
+     */
+    EventList.prototype.createDispatcher = function () {
+        return new EventDispatcher();
+    };
+    return EventList;
+}(EventListBase));
+exports.EventList = EventList;
+/**
+ * Storage class for multiple simple events that are accessible by name.
+ * Events dispatchers are automatically created.
+ */
+var SimpleEventList = (function (_super) {
+    __extends(SimpleEventList, _super);
+    /**
+     * Creates a new SimpleEventList instance.
+     */
+    function SimpleEventList() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Creates a new dispatcher instance.
+     */
+    SimpleEventList.prototype.createDispatcher = function () {
+        return new SimpleEventDispatcher();
+    };
+    return SimpleEventList;
+}(EventListBase));
+exports.SimpleEventList = SimpleEventList;
+/**
+ * Storage class for multiple signal events that are accessible by name.
+ * Events dispatchers are automatically created.
+ */
+var SignalList = (function (_super) {
+    __extends(SignalList, _super);
+    /**
+     * Creates a new SignalList instance.
+     */
+    function SignalList() {
+        return _super.call(this) || this;
+    }
+    /**
+     * Creates a new dispatcher instance.
+     */
+    SignalList.prototype.createDispatcher = function () {
+        return new SignalDispatcher();
+    };
+    return SignalList;
+}(EventListBase));
+exports.SignalList = SignalList;
+/**
+ * Extends objects with event handling capabilities.
+ */
+var EventHandlingBase = (function () {
+    function EventHandlingBase() {
+        this._events = new EventList();
+    }
+    Object.defineProperty(EventHandlingBase.prototype, "events", {
+        /**
+         * Gets the list with all the event dispatchers.
+         */
+        get: function () {
+            return this._events;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.subscribe = function (name, fn) {
+        this._events.get(name).subscribe(fn);
+    };
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.sub = function (name, fn) {
+        this.subscribe(name, fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.unsubscribe = function (name, fn) {
+        this._events.get(name).unsubscribe(fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.unsub = function (name, fn) {
+        this.unsubscribe(name, fn);
+    };
+    /**
+     * Subscribes to once the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.one = function (name, fn) {
+        this._events.get(name).one(fn);
+    };
+    /**
+     * Subscribes to once the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    EventHandlingBase.prototype.has = function (name, fn) {
+        return this._events.get(name).has(fn);
+    };
+    return EventHandlingBase;
+}());
+exports.EventHandlingBase = EventHandlingBase;
+/**
+ * Extends objects with simple event handling capabilities.
+ */
+var SimpleEventHandlingBase = (function () {
+    function SimpleEventHandlingBase() {
+        this._events = new SimpleEventList();
+    }
+    Object.defineProperty(SimpleEventHandlingBase.prototype, "events", {
+        get: function () {
+            return this._events;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.subscribe = function (name, fn) {
+        this._events.get(name).subscribe(fn);
+    };
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.sub = function (name, fn) {
+        this.subscribe(name, fn);
+    };
+    /**
+     * Subscribes once to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.one = function (name, fn) {
+        this._events.get(name).one(fn);
+    };
+    /**
+     * Checks it the event has a subscription for the specified handler.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.has = function (name, fn) {
+        return this._events.get(name).has(fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.unsubscribe = function (name, fn) {
+        this._events.get(name).unsubscribe(fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SimpleEventHandlingBase.prototype.unsub = function (name, fn) {
+        this.unsubscribe(name, fn);
+    };
+    return SimpleEventHandlingBase;
+}());
+exports.SimpleEventHandlingBase = SimpleEventHandlingBase;
+/**
+ * Extends objects with signal event handling capabilities.
+ */
+var SignalHandlingBase = (function () {
+    function SignalHandlingBase() {
+        this._events = new SignalList();
+    }
+    Object.defineProperty(SignalHandlingBase.prototype, "events", {
+        get: function () {
+            return this._events;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Subscribes once to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.one = function (name, fn) {
+        this._events.get(name).one(fn);
+    };
+    /**
+     * Checks it the event has a subscription for the specified handler.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.has = function (name, fn) {
+        return this._events.get(name).has(fn);
+    };
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.subscribe = function (name, fn) {
+        this._events.get(name).subscribe(fn);
+    };
+    /**
+     * Subscribes to the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.sub = function (name, fn) {
+        this.subscribe(name, fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.unsubscribe = function (name, fn) {
+        this._events.get(name).unsubscribe(fn);
+    };
+    /**
+     * Unsubscribes from the event with the specified name.
+     * @param name The name of the event.
+     * @param fn The event handler.
+     */
+    SignalHandlingBase.prototype.unsub = function (name, fn) {
+        this.unsubscribe(name, fn);
+    };
+    return SignalHandlingBase;
+}());
+exports.SignalHandlingBase = SignalHandlingBase;
+function createEventDispatcher() {
+    return new EventDispatcher();
+}
+exports.createEventDispatcher = createEventDispatcher;
+
+function createEventList() {
+    return new EventList();
+}
+exports.createEventList = createEventList;
+function createSimpleEventDispatcher() {
+    return new SimpleEventDispatcher();
+}
+exports.createSimpleEventDispatcher = createSimpleEventDispatcher;
+
+function createSimpleEventList() {
+    return new SimpleEventList();
+}
+exports.createSimpleEventList = createSimpleEventList;
+function createSignalDispatcher() {
+    return new SignalDispatcher();
+}
+exports.createSignalDispatcher = createSignalDispatcher;
+
+function createSignalList() {
+    return new SignalList();
+}
+exports.createSignalList = createSignalList;
+
+var StronglyTypedEventsStatic = {
+    EventList: EventList,
+    SimpleEventList: SimpleEventList,
+    SignalList: SignalList,
+    createEventList: createEventList,
+    createSimpleEventList: createSimpleEventList,
+    createSignalList: createSignalList,
+    EventDispatcher: EventDispatcher,
+    SimpleEventDispatcher: SimpleEventDispatcher,
+    SignalDispatcher: SignalDispatcher,
+    EventHandlingBase: EventHandlingBase,
+    SimpleEventHandlingBase: SimpleEventHandlingBase,
+    SignalHandlingBase: SignalHandlingBase,
+    createEventDispatcher: createEventDispatcher,
+    createSimpleEventDispatcher: createSimpleEventDispatcher,
+    createSignalDispatcher: createSignalDispatcher,
+    EventListBase: EventListBase,
+    DispatcherBase: DispatcherBase,
+    DispatcherWrapper: DispatcherWrapper
+};
+exports.IStronglyTypedEvents = StronglyTypedEventsStatic;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = StronglyTypedEventsStatic;
 });
 
 var stronglyTypedEvents_16 = stronglyTypedEvents.createSimpleEventDispatcher;
 
-var __awaiter$2 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$2 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function step(result) {
-            result.done ? resolve(result.value) : new P(function (resolve) {
-                resolve(result.value);
-            }).then(fulfilled, rejected);
-        }
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -934,7 +913,7 @@ class ChatWatcher {
         /**
          * Parses a chat message, firing the appropriate events if required.
          */
-        this.parse = message => {
+        this.parse = (message) => {
             let parseError = () => {
                 this._onOther.dispatch(message);
             };
@@ -946,7 +925,8 @@ class ChatWatcher {
                         this._onJoin.dispatch({ name, ip });
                         return;
                     }
-                } catch (_a) {}
+                }
+                catch (_a) { }
                 return parseError();
             }
             if (/^[^a-z]+ - Player Disconnected /.test(message)) {
@@ -957,7 +937,8 @@ class ChatWatcher {
                         this._onLeave.dispatch(name);
                         return;
                     }
-                } catch (_b) {}
+                }
+                catch (_b) { }
                 return parseError();
             }
             if (message.slice(0, 18).includes(': ')) {
@@ -977,13 +958,15 @@ class ChatWatcher {
          * Continually checks chat for new messages
          * @param lastId the ID to pass to the API to get only most recent messages.
          */
-        this.checkChat = lastId => __awaiter$2(this, void 0, void 0, function* () {
+        this.checkChat = (lastId) => __awaiter$2(this, void 0, void 0, function* () {
             try {
                 let { log, nextId } = yield this.api.getMessages(lastId);
-                if (this.timeoutId == null) return;
+                if (this.timeoutId == null)
+                    return;
                 log.forEach(this.parse);
                 this.timeoutId = setTimeout(this.checkChat, 5000, nextId);
-            } catch (_a) {
+            }
+            catch (_a) {
                 // Network error, wait 30 seconds before retrying
                 this.timeoutId = setTimeout(this.checkChat, 30000, 0);
                 return;
@@ -1024,14 +1007,16 @@ class ChatWatcher {
      * Starts the listener. Calling multiple times will not result in multiple listeners being started.
      */
     start() {
-        if (this.timeoutId) this.stop();
+        if (this.timeoutId)
+            this.stop();
         this.timeoutId = setTimeout(this.checkChat, 0, 0);
     }
     /**
      * Stops the listener if it is running. If not running, does nothing.
      */
     stop() {
-        if (this.timeoutId) clearTimeout(this.timeoutId);
+        if (this.timeoutId)
+            clearTimeout(this.timeoutId);
         this.timeoutId = null;
     }
     /**
@@ -1046,37 +1031,22 @@ class ChatWatcher {
             }
         }
         // Player is most likely offline
-        if (/[^a-z]{3,16}: /.test(message)) return message.substring(0, message.lastIndexOf(': ', 18));
+        if (/[^a-z]{3,16}: /.test(message))
+            return message.substring(0, message.lastIndexOf(': ', 18));
         // Invalid name
         return '';
     }
 }
 
-var __awaiter$1 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$1 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function step(result) {
-            result.done ? resolve(result.value) : new P(function (resolve) {
-                resolve(result.value);
-            }).then(fulfilled, rejected);
-        }
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const cloneDate = d => new Date(d.getTime());
+const cloneDate = (d) => new Date(d.getTime());
 const PLAYERS_KEY = 'mb_players';
 class World {
     constructor(api, storage) {
@@ -1084,7 +1054,7 @@ class World {
         this._events = {
             onJoin: stronglyTypedEvents_16(),
             onLeave: stronglyTypedEvents_16(),
-            onMessage: stronglyTypedEvents_16()
+            onMessage: stronglyTypedEvents_16(),
         };
         this._online = [];
         this._lists = { adminlist: [], modlist: [], whitelist: [], blacklist: [] };
@@ -1094,7 +1064,7 @@ class World {
          */
         this.getOverview = (refresh = false) => __awaiter$1(this, void 0, void 0, function* () {
             if (!this._cache.overview || refresh) {
-                let overview = yield this._cache.overview = this._api.getOverview();
+                let overview = yield (this._cache.overview = this._api.getOverview());
                 // Add online players to the online list if they aren't already online
                 overview.online.forEach(name => this._online.includes(name) || this._online.push(name));
                 // Make sure the owner has the owner flag set to true
@@ -1113,7 +1083,8 @@ class World {
             if (!this._cache.lists || refresh) {
                 this._cache.lists = this._api.getLists().then(lists => this._lists = lists);
             }
-            return this._cache.lists.then(lists => ({
+            return this._cache.lists
+                .then(lists => ({
                 adminlist: [...lists.adminlist],
                 modlist: [...lists.modlist],
                 whitelist: [...lists.whitelist],
@@ -1126,7 +1097,7 @@ class World {
          * @param lists WorldLists one or more list to update. If a list is not provided it will not be changed.
          * @return a promise which will resolve when the lists have been updated, or throw if an error occurred.
          */
-        this.setLists = lists => __awaiter$1(this, void 0, void 0, function* () {
+        this.setLists = (lists) => __awaiter$1(this, void 0, void 0, function* () {
             let currentLists = yield this.getLists();
             yield this._api.setLists(Object.assign({}, currentLists, lists));
             yield this.getLists(true);
@@ -1137,20 +1108,21 @@ class World {
          * @param refresh if true, will get the latest logs, otherwise will returned the cached version.
          */
         this.getLogs = (refresh = false) => __awaiter$1(this, void 0, void 0, function* () {
-            if (!this._cache.logs || refresh) this._cache.logs = this._api.getLogs();
+            if (!this._cache.logs || refresh)
+                this._cache.logs = this._api.getLogs();
             let lines = yield this._cache.logs;
-            return lines.slice().map(line => Object.assign({}, line, { timestamp: cloneDate(line.timestamp) }));
+            return lines.slice().map(line => (Object.assign({}, line, { timestamp: cloneDate(line.timestamp) })));
         });
         /**
          * Sends the specified message, returns a promise that will reject if the send fails and resolve otherwise.
          *
          * @param message the message to send
          */
-        this.send = message => this._api.send(message);
+        this.send = (message) => this._api.send(message);
         /**
          * Gets a specific player by name
          */
-        this.getPlayer = name => {
+        this.getPlayer = (name) => {
             name = name.toLocaleUpperCase();
             let players = this._storage.get(PLAYERS_KEY, {});
             return new Player(name, players[name] || { ip: '', ips: [], joins: 0 }, this._lists);
@@ -1175,7 +1147,7 @@ class World {
          *
          * @param command the command for which the listener should be removed.
          */
-        this.removeCommand = command => {
+        this.removeCommand = (command) => {
             this._commands.delete(command.toLocaleUpperCase());
         };
         /**
@@ -1246,7 +1218,8 @@ class World {
                 let player = players[name] = players[name] || { ip, ips: [ip], joins: 0 };
                 player.joins++;
                 player.ip = ip;
-                if (!player.ips.includes(ip)) player.ips.push(ip);
+                if (!player.ips.includes(ip))
+                    player.ips.push(ip);
             });
             this._events.onJoin.dispatch(this.getPlayer(name));
         });
@@ -1256,7 +1229,8 @@ class World {
             if (/^\/[^ ]/.test(message)) {
                 let [, command, args] = message.match(/^\/([^ ]+) ?(.*)$/);
                 let handler = this._commands.get(command.toLocaleUpperCase());
-                if (handler) handler(this.getPlayer(name), args);
+                if (handler)
+                    handler(this.getPlayer(name), args);
             }
         });
         watcher.start();
@@ -1268,23 +1242,26 @@ class World {
  * It is expected that the
  */
 class Storage {
-  /**
-   * Utility method to use and automatically save a key
-   * @param key the key use when getting and setting the value
-   * @param fallback the fallback if the key doesn't exist
-   * @param callback the function to be called with the data, must return the value to be saved
-   */
-  with(key, fallback, callback) {
-    let value = this.get(key, fallback);
-    let result = callback(value);
-    this.set(key, result == null ? value : result);
-  }
+    /**
+     * Utility method to use and automatically save a key
+     * @param key the key use when getting and setting the value
+     * @param fallback the fallback if the key doesn't exist
+     * @param callback the function to be called with the data, must return the value to be saved
+     */
+    with(key, fallback, callback) {
+        let value = this.get(key, fallback);
+        let result = callback(value);
+        this.set(key, result == null ? value : result);
+    }
 }
 
-var __rest$1 = undefined && undefined.__rest || function (s, e) {
+var __rest$1 = (undefined && undefined.__rest) || function (s, e) {
     var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
     return t;
 };
 let registeredExtensions = new Map();
@@ -1302,7 +1279,8 @@ class MessageBot$1 {
          * All loaded extension instances for this bot.
          */
         this._extensions = new Map();
-        if (!MessageBot$1.dependencies) throw new Error('Dependencies must be set before creating this class.');
+        if (!MessageBot$1.dependencies)
+            throw new Error('Dependencies must be set before creating this class.');
         this.world = new World(new MessageBot$1.dependencies.Api(info), storage);
     }
     /**
@@ -1326,8 +1304,17 @@ class MessageBot$1 {
             extensionDeregistered.dispatch(id);
         }
     }
+    /**
+     * An array of all registered extensions.
+     */
     static get extensions() {
         return [...registeredExtensions.keys()];
+    }
+    /**
+     * An array of currently loaded extension ids
+     */
+    get extensions() {
+        return [...this._extensions.keys()];
     }
     /**
      * Gets the exports of an extension, returns undefined if the extension is not loaded.
@@ -1335,7 +1322,8 @@ class MessageBot$1 {
      */
     getExports(id) {
         let ex = this._extensions.get(id.toLocaleLowerCase());
-        if (ex) return ex.exports;
+        if (ex)
+            return ex.exports;
     }
     /**
      * Adds an extension to this bot. Calls the init function supplied when registering the extension.
@@ -1343,9 +1331,11 @@ class MessageBot$1 {
      */
     addExtension(id) {
         id = id.toLocaleLowerCase();
-        if (this._extensions.has(id)) throw new Error(`The ${id} extension has already been added.`);
+        if (this._extensions.has(id))
+            throw new Error(`The ${id} extension has already been added.`);
         let creator = registeredExtensions.get(id);
-        if (!creator) throw new Error(`The ${id} extension has not been registered.`);
+        if (!creator)
+            throw new Error(`The ${id} extension has not been registered.`);
         let ex = new MessageBotExtension(id, this);
         this._extensions.set(id, ex);
         creator.call(ex, ex, this.world);
@@ -1359,14 +1349,17 @@ class MessageBot$1 {
     removeExtension(id, uninstall) {
         id = id.toLocaleLowerCase();
         let ex = this._extensions.get(id);
-        if (!ex) throw new Error(`The ${id} extension is not registered.`);
+        if (!ex)
+            throw new Error(`The ${id} extension is not registered.`);
         try {
             if (uninstall) {
                 ex.uninstall();
-            } else {
+            }
+            else {
                 ex.remove();
             }
-        } finally {
+        }
+        finally {
             this._extensions.delete(id);
         }
     }
@@ -1383,14 +1376,16 @@ class MessageBot$1 {
             let name = params.name.toLocaleLowerCase();
             params = Object.assign({}, params, { name, Name: name[0].toLocaleUpperCase() + name.substr(1), NAME: name.toLocaleUpperCase() });
         }
-        let safeKeyRegex = Object.keys(params).map(key => key.replace(/([.+?^=!:${}()|\[\]\/\\])/g, '\\$1')).join('}}|{{');
+        let safeKeyRegex = Object.keys(params)
+            .map(key => key.replace(/([.+?^=!:${}()|\[\]\/\\])/g, '\\$1'))
+            .join('}}|{{');
         // Don't bother replacing if nothing to search for
         if (safeKeyRegex.length) {
-            message = message.replace(new RegExp(`{{${safeKeyRegex}}}`, 'g'), key => {
+            message = message.replace(new RegExp(`{{${safeKeyRegex}}}`, 'g'), (key) => {
                 return params[key.substring(2, key.length - 2)];
             });
         }
-        this.world.send(message);
+        this.world.send(message).catch(() => { });
     }
 }
 /**
@@ -1410,7 +1405,8 @@ class MessageBot$$1 extends MessageBot$1 {
         // Split the message if splitting is enabled.
         if (this.storage.get('splitMessages', false)) {
             messages = message.split(this.storage.get('splitToken', '<split>'));
-        } else {
+        }
+        else {
             messages = [message];
         }
         for (let msg of messages) {
@@ -1432,7 +1428,7 @@ class PortalLogParser {
          *
          * @param lines the raw log lines.
          */
-        this.parse = lines => {
+        this.parse = (lines) => {
             // Copy the lines array
             lines = lines.slice(0);
             // Assume first line is valid, if it isn't it will be dropped.
@@ -1451,12 +1447,13 @@ class PortalLogParser {
             this.entries = [];
             return entries;
         };
-        this.isValidLine = line => {
-            return (/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d{3} blockheads_server/.test(line)
-            );
+        this.isValidLine = (line) => {
+            return /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d{3} blockheads_server/.test(line);
         };
-        this.addLine = line => {
-            let ts = line.substr(0, 24).replace(' ', 'T').replace(' ', 'Z');
+        this.addLine = (line) => {
+            let ts = line.substr(0, 24)
+                .replace(' ', 'T')
+                .replace(' ', 'Z');
             this.entries.push({
                 raw: line,
                 timestamp: new Date(ts),
@@ -1477,27 +1474,11 @@ class PortalLogParser {
  * @param message the string to compute the SHA1 hash of
  */
 
-var __awaiter$3 = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+var __awaiter$3 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function step(result) {
-            result.done ? resolve(result.value) : new P(function (resolve) {
-                resolve(result.value);
-            }).then(fulfilled, rejected);
-        }
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -1505,7 +1486,8 @@ const root = 'http://portal.theblockheads.net';
 let request;
 try {
     request = fetch;
-} catch (_a) {}
+}
+catch (_a) { }
 // Makes it possible to set the fetch function which the module uses. Necessary for terminal usage.
 
 function unescapeHTML(html) {
@@ -1514,7 +1496,7 @@ function unescapeHTML(html) {
         '&gt;': '>',
         '&amp;': '&',
         '&#39;': '\'',
-        '&quot;': '"'
+        '&quot;': '"',
     };
     return html.replace(/(&.*?;)/g, (_, first) => map[first]);
 }
@@ -1567,11 +1549,12 @@ class Api {
         /** @inheritdoc */
         this.getLists = () => __awaiter$3(this, void 0, void 0, function* () {
             let page = yield requestPage(`/worlds/lists/${this.info.id}`);
-            let getList = name => {
+            let getList = (name) => {
                 let names = [];
                 let list = page.match(new RegExp(`<textarea name="${name}">([\\s\\S]*?)</textarea>`));
                 if (list) {
-                    names = unescapeHTML(list[1]).split(/\r?\n/);
+                    names = unescapeHTML(list[1])
+                        .split(/\r?\n/);
                 }
                 // Remove duplicates / blank lines
                 return Array.from(new Set(names)).filter(Boolean);
@@ -1580,12 +1563,12 @@ class Api {
                 adminlist: getList('admins'),
                 modlist: getList('modlist'),
                 whitelist: getList('whitelist'),
-                blacklist: getList('blacklist')
+                blacklist: getList('blacklist'),
             };
         });
         /** @inheritdoc */
-        this.setLists = lists => __awaiter$3(this, void 0, void 0, function* () {
-            let makeSafe = list => encodeURIComponent(list.join('\n'));
+        this.setLists = (lists) => __awaiter$3(this, void 0, void 0, function* () {
+            let makeSafe = (list) => encodeURIComponent(list.join('\n'));
             let body = `admins=${makeSafe(lists.adminlist)}`;
             body += `&modlist=${makeSafe(lists.modlist)}`;
             body += `&whitelist=${makeSafe(lists.whitelist)}`;
@@ -1621,30 +1604,35 @@ class Api {
                 password: firstMatch(/^\t\t<td>Password:<\/td><td>(Yes|No)<\/td><\/tr>$/m) == 'Yes',
                 size: firstMatch(/^\t\t<td>Size:<\/td><td>(.*?)<\/td>$/m),
                 whitelist: firstMatch(/<td>Whitelist:<\/td><td>(Yes|No)<\/td>/m) == 'Yes',
-                online
+                online,
             };
         });
         /** @inheritdoc */
         this.getLogs = () => {
-            return requestPage(`/worlds/logs/${this.info.id}`).then(log => log.split('\n')).then(lines => this.parser.parse(lines));
+            return requestPage(`/worlds/logs/${this.info.id}`)
+                .then(log => log.split('\n'))
+                .then(lines => this.parser.parse(lines));
         };
         /** @inheritdoc */
         this.getMessages = (lastId = 0) => {
             return requestJSON('/api', {
                 method: 'POST',
                 body: `command=getchat&worldId=${this.info.id}&firstId=${lastId}`
-            }).then(({ status, log, nextId }) => {
-                if (status != 'ok') return { log: [], nextId: 0 }; // Reset, world likely offline.
+            })
+                .then(({ status, log, nextId }) => {
+                if (status != 'ok')
+                    return { log: [], nextId: 0 }; // Reset, world likely offline.
                 return { nextId, log };
             }, () => ({ log: [], nextId: lastId })); //Network error, don't reset nextId
         };
         /** @inheritdoc */
-        this.send = message => {
+        this.send = (message) => {
             return requestJSON('/api', {
                 method: 'POST',
                 body: `command=send&worldId=${this.info.id}&message=${encodeURIComponent(message)}`
             }).then(result => {
-                if (result.status == 'ok') return;
+                if (result.status == 'ok')
+                    return;
                 throw new Error(`Unable to send ${message}`);
             });
         };
@@ -1653,21 +1641,24 @@ class Api {
             return requestJSON('/api', {
                 method: 'POST',
                 body: `command=start&worldId=${this.info.id}`
-            }).then(() => undefined, console.error);
+            })
+                .then(() => undefined, console.error);
         };
         /** @inheritdoc */
         this.stop = () => {
             return requestJSON('/api', {
                 method: 'POST',
                 body: `command=stop&worldId=${this.info.id}`
-            }).then(() => undefined, console.error);
+            })
+                .then(() => undefined, console.error);
         };
         /** @inheritdoc */
         this.restart = () => {
             return requestJSON('/api', {
                 method: 'POST',
                 body: `command=reboot&worldId=${this.info.id}`
-            }).then(() => undefined, console.error);
+            })
+                .then(() => undefined, console.error);
         };
     }
 }
@@ -1685,7 +1676,8 @@ class Storage$1 extends Storage {
         try {
             let parsed = JSON.parse(item);
             return parsed == null ? fallback : parsed;
-        } catch (_a) {
+        }
+        catch (_a) {
             return fallback;
         }
     }
@@ -1696,7 +1688,8 @@ class Storage$1 extends Storage {
         let remove = [];
         for (let i = 0; i < localStorage.length; i++) {
             let key = localStorage.key(i); // This is safe.
-            if (key.startsWith(this.head + prefix)) remove.push(key);
+            if (key.startsWith(this.head + prefix))
+                remove.push(key);
         }
         remove.forEach(key => localStorage.removeItem(key));
     }
@@ -1723,9 +1716,26 @@ and limitations under the License.
 ***************************************************************************** */
 /* global Reflect, Promise */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function __values$1(o) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator],
-        i = 0;
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
     if (m) return m.call(o);
     return {
         next: function () {
@@ -1738,42 +1748,35 @@ function __values$1(o) {
 function __read$1(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
-    var i = m.call(o),
-        r,
-        ar = [],
-        e;
+    var i = m.call(o), r, ar = [], e;
     try {
         while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    } catch (error) {
-        e = { error: error };
-    } finally {
+    }
+    catch (error) { e = { error: error }; }
+    finally {
         try {
             if (r && !r.done && (m = i["return"])) m.call(i);
-        } finally {
-            if (e) throw e.error;
         }
+        finally { if (e) throw e.error; }
     }
     return ar;
 }
 
 var api = function () {
     var menuSlider = document.querySelector('.nav-slider-container .nav-slider');
-    var toggleMenu = function () {
-        return menuSlider.classList.toggle('is-active');
-    };
+    var toggleMenu = function () { return menuSlider.classList.toggle('is-active'); };
     try {
         for (var _a = __values$1(document.querySelectorAll('.nav-slider-toggle')), _b = _a.next(); !_b.done; _b = _a.next()) {
             var el = _b.value;
             el.addEventListener('click', toggleMenu);
         }
-    } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-    } finally {
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
         try {
             if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
-        } finally {
-            if (e_1) throw e_1.error;
         }
+        finally { if (e_1) throw e_1.error; }
     }
     var tabs = new Map();
     var groups = new Map();
@@ -1784,21 +1787,18 @@ var api = function () {
         var tab = tabs.get(nav);
         if (tab) {
             // Containers
-            Array.from(container.children).forEach(function (child) {
-                return child.classList.remove('visible');
-            });
+            Array.from(container.children).forEach(function (child) { return child.classList.remove('visible'); });
             tab.classList.add('visible');
             // Nav items
-            Array.from(menuContainer.querySelectorAll('span.nav-item')).forEach(function (span) {
-                return span.classList.remove('is-active');
-            });
+            Array.from(menuContainer.querySelectorAll('span.nav-item')).forEach(function (span) { return span.classList.remove('is-active'); });
             nav.classList.add('is-active');
         }
     });
     var addTab = function (text, groupName) {
         var div = container.appendChild(document.createElement('div'));
         var parent = menuContainer;
-        if (groupName) parent = groups.get(groupName);
+        if (groupName)
+            parent = groups.get(groupName);
         var nav = parent.appendChild(document.createElement('span'));
         nav.textContent = text;
         nav.classList.add('nav-item');
@@ -1808,23 +1808,20 @@ var api = function () {
     var removeTab = function (content) {
         try {
             for (var _a = __values$1(tabs.entries()), _b = _a.next(); !_b.done; _b = _a.next()) {
-                var _c = __read$1(_b.value, 2),
-                    nav = _c[0],
-                    div = _c[1];
+                var _c = __read$1(_b.value, 2), nav = _c[0], div = _c[1];
                 if (div == content) {
                     div.remove();
                     nav.remove();
                     return;
                 }
             }
-        } catch (e_2_1) {
-            e_2 = { error: e_2_1 };
-        } finally {
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
             try {
                 if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
-            } finally {
-                if (e_2) throw e_2.error;
             }
+            finally { if (e_2) throw e_2.error; }
         }
         var e_2, _d;
     };
@@ -1835,7 +1832,8 @@ var api = function () {
             return;
         }
         var parentElement = menuContainer;
-        if (parent) parentElement = groups.get(parent);
+        if (parent)
+            parentElement = groups.get(parent);
         details = parentElement.appendChild(document.createElement('details'));
         details.classList.add('nav-item');
         var summary = details.appendChild(document.createElement('summary'));
@@ -1844,28 +1842,29 @@ var api = function () {
     };
     var removeTabGroup = function (groupName) {
         var group = groups.get(groupName);
-        if (!group) return;
+        if (!group)
+            return;
         try {
             for (var _a = __values$1(group.querySelectorAll('span')), _b = _a.next(); !_b.done; _b = _a.next()) {
                 var child = _b.value;
                 // Unless someone has been purposely messing with the page, this is a safe assertion
                 removeTab(tabs.get(child));
             }
-        } catch (e_3_1) {
-            e_3 = { error: e_3_1 };
-        } finally {
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
             try {
                 if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
-            } finally {
-                if (e_3) throw e_3.error;
             }
+            finally { if (e_3) throw e_3.error; }
         }
         var e_3, _c;
     };
     var handleRule = function (rule, element) {
         if (typeof rule.text == 'string') {
             element.textContent = rule.text;
-        } else if (typeof rule.html == 'string') {
+        }
+        else if (typeof rule.html == 'string') {
             element.innerHTML = rule.html;
         }
         var blacklist = ['text', 'html', 'selector'];
@@ -1876,17 +1875,18 @@ var api = function () {
         //See https://github.com/Blockheads-Messagebot/MessageBot/issues/52
         if (element instanceof HTMLSelectElement && 'value' in rule) {
             var child = element.querySelector("[value=\"" + rule.value + "\"]");
-            if (child) child.selected = true;
+            if (child)
+                child.selected = true;
         }
-        Object.keys(rule).filter(function (key) {
-            return !blacklist.includes(key);
-        }).forEach(function (key) {
-            return element.setAttribute(key, rule[key]);
-        });
+        Object.keys(rule)
+            .filter(function (key) { return !blacklist.includes(key); })
+            .forEach(function (key) { return element.setAttribute(key, rule[key]); });
     };
     var buildTemplate = function (template, target, rules) {
-        if (typeof template == 'string') template = document.querySelector(template);
-        if (typeof target == 'string') target = document.querySelector(target);
+        if (typeof template == 'string')
+            template = document.querySelector(template);
+        if (typeof target == 'string')
+            target = document.querySelector(target);
         var parent = document.importNode(template.content, true);
         try {
             for (var rules_1 = __values$1(rules), rules_1_1 = rules_1.next(); !rules_1_1.done; rules_1_1 = rules_1.next()) {
@@ -1898,30 +1898,26 @@ var api = function () {
                 }
                 handleRule(rule, element);
             }
-        } catch (e_4_1) {
-            e_4 = { error: e_4_1 };
-        } finally {
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
             try {
                 if (rules_1_1 && !rules_1_1.done && (_a = rules_1.return)) _a.call(rules_1);
-            } finally {
-                if (e_4) throw e_4.error;
             }
+            finally { if (e_4) throw e_4.error; }
         }
         target.appendChild(parent);
         var e_4, _a;
     };
     var notify = function (text, displayTime) {
-        if (displayTime === void 0) {
-            displayTime = 3;
-        }
+        if (displayTime === void 0) { displayTime = 3; }
         var el = document.body.appendChild(document.createElement('div'));
         el.classList.add('bot-notification', 'is-active');
         el.textContent = text;
-        var timeouts = [setTimeout(function () {
-            return el.classList.remove('is-active');
-        }, displayTime * 1000), setTimeout(function () {
-            return el.remove();
-        }, (displayTime + 1) * 1000)];
+        var timeouts = [
+            setTimeout(function () { return el.classList.remove('is-active'); }, displayTime * 1000),
+            setTimeout(function () { return el.remove(); }, (displayTime + 1) * 1000)
+        ];
         el.addEventListener('click', function () {
             timeouts.forEach(clearTimeout);
             el.remove();
@@ -1940,44 +1936,48 @@ var api = function () {
         if (typeof button == 'object') {
             styles.push(button.style || '');
             el.textContent = button.text;
-        } else {
+        }
+        else {
             el.textContent = button;
         }
     };
     var showAlert = function () {
         alertInstance.active = true;
-        var _a = alertInstance.queue.shift(),
-            html = _a.html,
-            buttons = _a.buttons,
-            callback = _a.callback;
+        var _a = alertInstance.queue.shift(), html = _a.html, buttons = _a.buttons, callback = _a.callback;
         modalBody.innerHTML = html;
         Array.isArray(buttons) ? buttons.forEach(addButton) : addButton('OK');
         modal.classList.add('is-active');
         modalFooter.addEventListener('click', function buttonHandler(event) {
             var target = event.target;
-            if (target.tagName != 'A') return;
+            if (target.tagName != 'A')
+                return;
             modal.classList.remove('is-active');
             try {
-                if (callback) callback.call(null, target.textContent);
-            } catch (err) {
+                if (callback)
+                    callback.call(null, target.textContent);
+            }
+            catch (err) {
                 console.error('Error calling alert callback', err);
             }
             modalFooter.innerHTML = '';
             modalFooter.removeEventListener('click', buttonHandler);
             alertInstance.active = false;
-            if (alertInstance.queue.length) showAlert();
+            if (alertInstance.queue.length)
+                showAlert();
         });
     };
     var alert = function (html, buttons, callback) {
         alertInstance.queue.push({ html: html, buttons: buttons, callback: callback });
-        if (!alertInstance.active) showAlert();
+        if (!alertInstance.active)
+            showAlert();
     };
     var prompt = function (text, callback) {
         var p = document.createElement('p');
         p.textContent = text;
         alert(p.outerHTML + "<textarea class=\"textarea\"></textarea>", ['OK', 'Cancel'], function () {
             var el = modalBody.querySelector('textarea');
-            if (callback) callback(el.textContent || '');
+            if (callback)
+                callback(el.textContent || '');
         });
     };
     return {
@@ -2009,7 +2009,8 @@ function polyfill() {
                 if (details.getAttribute('open')) {
                     details.open = false;
                     details.removeAttribute('open');
-                } else {
+                }
+                else {
                     details.open = true;
                     details.setAttribute('open', 'open');
                 }
@@ -2027,9 +2028,7 @@ MessageBot$1.registerExtension('ui', function (ex) {
     };
     // Page creation
     document.body.innerHTML = page;
-    document.head.querySelectorAll('link').forEach(function (el) {
-        return el.remove();
-    });
+    document.head.querySelectorAll('link').forEach(function (el) { return el.remove(); });
     var style = document.head.appendChild(document.createElement('link'));
     style.rel = 'stylesheet';
     style.href = 'https://gitcdn.xyz/repo/Blockheads-Messagebot/UI/master/index.css';
@@ -2073,7 +2072,7 @@ class RemovableMessageHelper {
 class JoinListener extends RemovableMessageHelper {
     constructor(ex) {
         super('joinArr', ex);
-        this.listener = player => {
+        this.listener = (player) => {
             for (let msg of this.messages) {
                 if (checkJoins(player, msg) && checkGroups(player, msg)) {
                     this.ex.bot.send(msg.message, { name: player.name });
@@ -2089,7 +2088,7 @@ class JoinListener extends RemovableMessageHelper {
 class LeaveListener extends RemovableMessageHelper {
     constructor(ex) {
         super('leaveArr', ex);
-        this.listener = player => {
+        this.listener = (player) => {
             for (let msg of this.messages) {
                 if (checkJoins(player, msg) && checkGroups(player, msg)) {
                     this.ex.bot.send(msg.message, { name: player.name });
@@ -2106,10 +2105,15 @@ class TriggerListener extends RemovableMessageHelper {
     constructor(ex) {
         super('triggerArr', ex);
         this.listener = ({ player, message }) => {
-            if (player.name == 'SERVER') return;
+            if (player.name == 'SERVER')
+                return;
             let responses = 0;
             for (let msg of this.messages) {
-                let checks = [checkJoins(player, msg), checkGroups(player, msg), this.triggerMatches(message, msg.trigger)];
+                let checks = [
+                    checkJoins(player, msg),
+                    checkGroups(player, msg),
+                    this.triggerMatches(message, msg.trigger)
+                ];
                 if (checks.every(Boolean) && ++responses <= this.ex.storage.get('maxResponses', 3)) {
                     this.ex.bot.send(msg.message, { name: player.name });
                 }
@@ -2127,7 +2131,8 @@ class TriggerListener extends RemovableMessageHelper {
         if (this.ex.storage.get('regexTriggers', false)) {
             try {
                 return new RegExp(trigger, 'i').test(message);
-            } catch (_a) {
+            }
+            catch (_a) {
                 return false;
             }
         }
@@ -2140,8 +2145,10 @@ class AnnouncementListener extends RemovableMessageHelper {
         super('announcementArr', ex);
         this.index = 0;
         this.run = () => {
-            if (this.index >= this.messages.length) this.index = 0;
-            if (this.messages[this.index]) this.ex.bot.send(this.messages[this.index++].message);
+            if (this.index >= this.messages.length)
+                this.index = 0;
+            if (this.messages[this.index])
+                this.ex.bot.send(this.messages[this.index++].message);
             this.timeoutId = setTimeout(this.run, this.delay);
         };
         this.timeoutId = setTimeout(this.run, this.delay);
@@ -2182,7 +2189,8 @@ class MessagesTab extends RemovableMessageHelper {
                 if (target.tagName == 'A' && target.textContent == 'Delete') {
                     event.preventDefault();
                     this.ui.alert('Really delete this message?', [{ text: 'Delete', style: 'is-danger' }, { text: 'Cancel' }], result => {
-                        if (result != 'Delete') return;
+                        if (result != 'Delete')
+                            return;
                         let parent = target;
                         while (!parent.classList.contains('column')) {
                             parent = parent.parentElement;
@@ -2200,9 +2208,10 @@ class MessagesTab extends RemovableMessageHelper {
             let messages = [];
             Array.from(this.root.children).forEach(element => {
                 let data = {};
-                Array.from(element.querySelectorAll('[data-target]')).forEach(input => {
+                Array.from(element.querySelectorAll('[data-target]')).forEach((input) => {
                     let name = input.dataset['target'];
-                    if (!name) return;
+                    if (!name)
+                        return;
                     switch (input.getAttribute('type')) {
                         case 'number':
                             data[name] = +input.value;
@@ -2233,7 +2242,13 @@ class JoinTab extends MessagesTab {
             this.tab.innerHTML = joinHtml;
         };
         this.addMessage = (msg = {}) => {
-            this.ui.buildTemplate(this.template, this.root, [{ selector: '[data-target=message]', text: msg.message || '' }, { selector: '[data-target=joins_low]', value: msg.joins_low || 0 }, { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 }, { selector: '[data-target=group]', value: msg.group || 'all' }, { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' }]);
+            this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-target=message]', text: msg.message || '' },
+                { selector: '[data-target=joins_low]', value: msg.joins_low || 0 },
+                { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 },
+                { selector: '[data-target=group]', value: msg.group || 'all' },
+                { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' },
+            ]);
         };
     }
 }
@@ -2244,7 +2259,13 @@ class LeaveTab extends MessagesTab {
             this.tab.innerHTML = leaveHtml;
         };
         this.addMessage = (msg = {}) => {
-            this.ui.buildTemplate(this.template, this.root, [{ selector: '[data-target=message]', text: msg.message || '' }, { selector: '[data-target=joins_low]', value: msg.joins_low || 0 }, { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 }, { selector: '[data-target=group]', value: msg.group || 'all' }, { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' }]);
+            this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-target=message]', text: msg.message || '' },
+                { selector: '[data-target=joins_low]', value: msg.joins_low || 0 },
+                { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 },
+                { selector: '[data-target=group]', value: msg.group || 'all' },
+                { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' }
+            ]);
         };
     }
 }
@@ -2255,7 +2276,14 @@ class TriggerTab extends MessagesTab {
             this.tab.innerHTML = triggerHtml;
         };
         this.addMessage = (msg = {}) => {
-            this.ui.buildTemplate(this.template, this.root, [{ selector: '[data-target=message]', text: msg.message || '' }, { selector: '[data-target=trigger]', value: msg.trigger || '' }, { selector: '[data-target=joins_low]', value: msg.joins_low || 0 }, { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 }, { selector: '[data-target=group]', value: msg.group || 'all' }, { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' }]);
+            this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-target=message]', text: msg.message || '' },
+                { selector: '[data-target=trigger]', value: msg.trigger || '' },
+                { selector: '[data-target=joins_low]', value: msg.joins_low || 0 },
+                { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 },
+                { selector: '[data-target=group]', value: msg.group || 'all' },
+                { selector: '[data-target=not_group]', value: msg.not_group || 'nobody' }
+            ]);
         };
     }
 }
@@ -2266,7 +2294,9 @@ class AnnouncementTab extends MessagesTab {
             this.tab.innerHTML = annHtml;
         };
         this.addMessage = (msg = {}) => {
-            this.ui.buildTemplate(this.template, this.root, [{ selector: '[data-target=message]', text: msg.message || '' }]);
+            this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-target=message]', text: msg.message || '' },
+            ]);
         };
     }
 }
@@ -2278,14 +2308,20 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
     ex.remove = () => listeners.forEach(l => l.remove());
     let hasLoaded = false;
     let delayLoad = () => {
-        if (hasLoaded) return;
+        if (hasLoaded)
+            return;
         hasLoaded = true;
         let timeout = setTimeout(() => {
-            listeners = [new JoinListener(ex), new LeaveListener(ex), new TriggerListener(ex), new AnnouncementListener(ex)];
+            listeners = [
+                new JoinListener(ex),
+                new LeaveListener(ex),
+                new TriggerListener(ex),
+                new AnnouncementListener(ex),
+            ];
         }, 500);
         listeners = [{
-            remove: () => clearTimeout(timeout)
-        }];
+                remove: () => clearTimeout(timeout)
+            }];
     };
     world.onJoin.one(delayLoad);
     world.onLeave.one(delayLoad);
@@ -2296,7 +2332,12 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
         style.innerHTML = css;
         let ui = ex.bot.getExports('ui');
         ui.addTabGroup('Messages', 'messages');
-        let tabs = [new JoinTab(ex), new LeaveTab(ex), new TriggerTab(ex), new AnnouncementTab(ex)];
+        let tabs = [
+            new JoinTab(ex),
+            new LeaveTab(ex),
+            new TriggerTab(ex),
+            new AnnouncementTab(ex),
+        ];
         tabs.forEach(tab => tab.setup());
         listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => ui.removeTabGroup('messages') });
     }
@@ -2315,7 +2356,8 @@ function history(input) {
     function addIfNew(message) {
         if (message != history.slice(-1).pop()) {
             addToHistory(message);
-        } else {
+        }
+        else {
             current = history.length;
         }
     }
@@ -2328,14 +2370,17 @@ function history(input) {
             if (history.length && current) {
                 input.value = history[--current];
             }
-        } else if (event.key == 'ArrowDown') {
+        }
+        else if (event.key == 'ArrowDown') {
             if (history.length > current + 1) {
                 input.value = history[++current];
-            } else if (history.length == current + 1) {
+            }
+            else if (history.length == current + 1) {
                 input.value = '';
                 current = history.length;
             }
-        } else if (event.key == 'Enter') {
+        }
+        else if (event.key == 'Enter') {
             addIfNew(input.value);
         }
     });
@@ -2394,27 +2439,36 @@ MessageBot$1.registerExtension('console', function (ex, world) {
     }).observe(chatUl, { childList: true, subtree: true });
     // Add a message to the page
     function addPlayerMessage(player, message) {
-        if (!message.length) return;
+        if (!message.length)
+            return;
         let messageClass = 'player';
-        if (player.isAdmin) messageClass = 'admin';
-        if (player.isMod) messageClass = 'mod';
-        ui.buildTemplate(template, chatUl, [{ selector: 'li', 'class': messageClass }, { selector: 'span:first-child', text: player.name }, { selector: 'span:last-child', text: ': ' + message }]);
+        if (player.isAdmin)
+            messageClass = 'admin';
+        if (player.isMod)
+            messageClass = 'mod';
+        ui.buildTemplate(template, chatUl, [
+            { selector: 'li', 'class': messageClass },
+            { selector: 'span:first-child', text: player.name },
+            { selector: 'span:last-child', text: ': ' + message }
+        ]);
     }
     function addGenericMessage(message) {
-        if (!message.length) return;
+        if (!message.length)
+            return;
         let li = document.createElement('li');
         li.textContent = message;
         chatUl.appendChild(li);
     }
     // Export required functions
     let consoleExports = {
-        log: message => addPlayerMessage(world.getPlayer('SERVER'), message)
+        log: (message) => addPlayerMessage(world.getPlayer('SERVER'), message)
     };
     ex.exports = consoleExports;
     function logJoins(player) {
         if (ex.storage.get('logJoinIps', true)) {
             consoleExports.log(`${player.name} (${player.ip}) joined.`);
-        } else {
+        }
+        else {
             consoleExports.log(`${player.name} joined.`);
         }
     }
@@ -2443,17 +2497,23 @@ MessageBot$1.registerExtension('console', function (ex, world) {
     };
 });
 
-var html$1 = "<div class=\"container\">\r\n    <h3 class=\"title\">General Settings</h3>\r\n    <p class=\"control\">\r\n        <label>Minutes between announcements</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/announcementDelay\">\r\n        <br>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label>Maximum trigger responses to a message</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/maxResponses\">\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"console/logJoinIps\"> Show joining IPs in console\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input data-target=\"console/logUnparsedMessages\" type=\"checkbox\"> Log unparsed messages\r\n        </label>\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <h3 class=\"title\">Advanced Settings</h3>\r\n    <div class=\"message is-warning\">\r\n        <div class=\"message-header\">\r\n            <p>Warning</p>\r\n        </div>\r\n        <div class=\"message-body\">\r\n            <p>Changing these options can result in unexpected behavior.\r\n                <a href=\"https://github.com/Bibliofile/Blockheads-MessageBot/wiki/1.-Advanced-Options/\"\r\n                    target=\"_blank\">Read this first</a>\r\n            </p>\r\n        </div>\r\n    </div>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/regexTriggers\"> Parse triggers as RegEx\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/disableWhitespaceTrimming\"> Disable whitespace trimming\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"splitMessages\"> Split messages\r\n        </label>\r\n    </p>\r\n    <label class=\"label\">Split token:</label>\r\n    <p class=\"control\">\r\n        <input class=\"input\" type=\"text\" data-target=\"splitToken\">\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <nav class=\"panel\">\r\n        <p class=\"panel-heading\">Backup / Restore</p>\r\n\r\n        <a class=\"panel-block\" data-do=\"show_backup\">Show Backup</a>\r\n        <a class=\"panel-block\" data-do=\"download_backup\">Download Backup</a>\r\n        <a class=\"panel-block\" data-do=\"import_backup\">Import Backup</a>\r\n        <a class=\"panel-block\" data-do=\"upload_backup\">Upload Backup</a>\r\n    </nav>\r\n</div>";
+var html$1 = "<div class=\"container\">\r\n    <h3 class=\"title\">General Settings</h3>\r\n    <p class=\"control\">\r\n        <label>Minutes between announcements</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/announcementDelay\">\r\n        <br>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label>Maximum trigger responses to a message</label>\r\n        <input class=\"input\" type=\"number\" data-target=\"messages/maxResponses\">\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"console/logJoinIps\"> Show joining IPs in console\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input data-target=\"console/logUnparsedMessages\" type=\"checkbox\"> Log unparsed messages\r\n        </label>\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <h3 class=\"title\">Advanced Settings</h3>\r\n    <div class=\"message is-warning\">\r\n        <div class=\"message-header\">\r\n            <p>Warning</p>\r\n        </div>\r\n        <div class=\"message-body\">\r\n            <p>Changing these options can result in unexpected behavior.\r\n                <a href=\"https://github.com/Bibliofile/Blockheads-MessageBot/wiki/1.-Advanced-Options/\"\r\n                    target=\"_blank\">Read this first</a>\r\n            </p>\r\n        </div>\r\n    </div>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/regexTriggers\"> Parse triggers as RegEx\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"messages/disableWhitespaceTrimming\"> Disable whitespace trimming\r\n        </label>\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"splitMessages\"> Split messages\r\n        </label>\r\n    </p>\r\n    <label class=\"label\">Split token:</label>\r\n    <p class=\"control\">\r\n        <input class=\"input\" type=\"text\" data-target=\"splitToken\">\r\n    </p>\r\n    <p class=\"control\">\r\n        <label class=\"checkbox\">\r\n            <input type=\"checkbox\" data-target=\"extensions/devMode\"> Developer mode\r\n        </label>\r\n    </p>\r\n    <label class=\"label\">Extension Repsitory URLs (one per line, reload required to apply):</label>\r\n    <p class=\"control\">\r\n        <textarea class=\"textarea is-fluid\" type=\"text\" data-target=\"extensions/repos\"></textarea>\r\n    </p>\r\n\r\n    <hr>\r\n\r\n    <nav class=\"panel\">\r\n        <p class=\"panel-heading\">Backup / Restore</p>\r\n\r\n        <a class=\"panel-block\" data-do=\"show_backup\">Show Backup</a>\r\n        <a class=\"panel-block\" data-do=\"download_backup\">Download Backup</a>\r\n        <a class=\"panel-block\" data-do=\"import_backup\">Import Backup</a>\r\n        <a class=\"panel-block\" data-do=\"upload_backup\">Upload Backup</a>\r\n    </nav>\r\n\r\n    <br>\r\n</div>";
 
 const settingDefaults = [
-// General
-['messages/announcementDelay', 10], ['messages/maxResponses', 3], ['console/logJoinIps', true], ['console/logUnparsedMessages', true],
-// Advanced
-['messages/regexTriggers', false], ['messages/disableWhitespaceTrimming', false], ['splitMessages', false], ['splitToken', '<split>']];
+    // General
+    ['messages/announcementDelay', 10],
+    ['messages/maxResponses', 3],
+    ['console/logJoinIps', true],
+    ['console/logUnparsedMessages', true],
+    // Advanced
+    ['messages/regexTriggers', false],
+    ['messages/disableWhitespaceTrimming', false],
+    ['splitMessages', false],
+    ['splitToken', '<split>'],
+    ['extensions/devMode', false],
+    ['extensions/repos', 'https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json'],
+];
 MessageBot$1.registerExtension('settings', function (ex) {
-    if (!ex.bot.getExports('ui')) {
-        throw new Error('This extension must be loaded in a browser after the UI has been loaded.');
-    }
     let settingsRoot = ex.bot.storage;
     let ui = ex.bot.getExports('ui');
     let tab = ui.addTab('Settings');
@@ -2462,7 +2522,8 @@ MessageBot$1.registerExtension('settings', function (ex) {
         let el = tab.querySelector(`[data-target="${key}"]`);
         if (typeof def == 'boolean') {
             el.checked = settingsRoot.get(key, def);
-        } else {
+        }
+        else {
             el.value = String(settingsRoot.get(key, def));
         }
     }
@@ -2471,9 +2532,11 @@ MessageBot$1.registerExtension('settings', function (ex) {
             let el = tab.querySelector(`[data-target="${key}"]`);
             if (typeof def == 'boolean') {
                 settingsRoot.set(key, el.checked);
-            } else if (typeof def == 'number') {
+            }
+            else if (typeof def == 'number') {
                 settingsRoot.set(key, +el.value);
-            } else {
+            }
+            else {
                 settingsRoot.set(key, el.value);
             }
         }
@@ -2485,12 +2548,13 @@ MessageBot$1.registerExtension('settings', function (ex) {
             if (parsed === null) {
                 throw new Error('Invalid backup');
             }
-        } catch (e) {
+        }
+        catch (e) {
             ui.notify('Invalid backup code. No action taken.');
             return;
         }
         localStorage.clear();
-        Object.keys(parsed).forEach(key => {
+        Object.keys(parsed).forEach((key) => {
             localStorage.setItem(key, parsed[key]);
         });
         location.reload();
@@ -2519,7 +2583,7 @@ MessageBot$1.registerExtension('settings', function (ex) {
     });
     tab.querySelector('[data-do=upload_backup]').addEventListener('click', () => {
         if (!File || !FileReader || !FileList || !Blob) {
-            alert(`It looks like your browser doesn't support this.`);
+            ui.notify(`It looks like your browser doesn't support this.`);
             return;
         }
         let input = document.createElement('input');
@@ -2540,6 +2604,126 @@ MessageBot$1.registerExtension('settings', function (ex) {
     ex.remove = function () {
         ui.removeTab(tab);
     };
+});
+
+var html$2 = "<template>\r\n    <div class=\"column is-4-desktop is-6-tablet\">\r\n        <div class=\"card\">\r\n            <header class=\"card-header\">\r\n                <p class=\"card-header-title\">Title</p>\r\n            </header>\r\n            <div class=\"card-content\">\r\n                <span class=\"content\">Description</span>\r\n            </div>\r\n            <div class=\"card-footer\">\r\n                <a class=\"card-footer-item\">Install</a>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <h3 class=\"title is-4\">Extensions can increase the functionality of the bot.</h3>\r\n        <span>Interested in creating one?\r\n            <a href=\"https://github.com/Blockheads-MessageBot/MessageBot/wiki/2.-Development:-Start-Here\"\r\n                target=\"_blank\">Start here.</a>\r\n        </span>\r\n    </section>\r\n    <div class=\"columns is-multiline exts\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
+
+const flatten = (arr) => arr.reduce((carry, item) => carry.concat(item), []);
+// const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
+const proxyUrl = `https://cors-anywhere.herokuapp.com/`;
+const defaultRepo = `https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json`;
+function supported(info) {
+    let env = info.env.toLocaleLowerCase();
+    return [
+        env.includes('all'),
+        env.includes('browser'),
+        (env.includes('mac') && env.includes('cloud')),
+    ].some(Boolean) && /\.(m?js|es)/.test(info.package);
+}
+MessageBot$1.registerExtension('extensions', ex => {
+    let ui = ex.bot.getExports('ui');
+    let tab = ui.addTab('Extensions');
+    tab.innerHTML = html$2;
+    tab.addEventListener('click', event => {
+        let target = event.target;
+        if (target.tagName != 'A')
+            return;
+        let id = target.getAttribute('ext_id');
+        if (!id)
+            return;
+        if (target.textContent == 'Install') {
+            load(id);
+        }
+        else {
+            removeExtension(id);
+        }
+    });
+    ex.remove = () => {
+        throw new Error('This extension cannot be removed.');
+    };
+    function addExtension(id) {
+        try {
+            ex.bot.addExtension(id);
+            ex.storage.with('autoload', [], ids => {
+                if (!ids.includes(id))
+                    ids.push(id);
+            });
+            let button = tab.querySelector(`a[ext_id="${id}"]`);
+            if (button)
+                button.textContent = 'Remove';
+        }
+        catch (error) {
+            ui.notify('Error adding extension: ' + error);
+            try {
+                ex.bot.removeExtension(id, false);
+            }
+            catch (_a) { }
+        }
+    }
+    function removeExtension(id) {
+        try {
+            ex.bot.removeExtension(id, true);
+            ex.storage.with('autoload', [], ids => {
+                if (ids.includes(id))
+                    ids.splice(ids.indexOf(id), 1);
+            });
+            let button = tab.querySelector(`a[ext_id="${id}"]`);
+            if (button)
+                button.textContent = 'Install';
+        }
+        catch (error) {
+            ui.notify('Error removing extension: ' + error);
+        }
+    }
+    // Load listener
+    let shouldLoad = new Set();
+    MessageBot$1.extensionRegistered.sub(id => {
+        // If in developer mode, autoload unconditionally
+        if (ex.storage.get('devMode', false)) {
+            if (ex.bot.getExports(id))
+                ex.bot.removeExtension(id, false);
+            addExtension(id);
+        }
+        else if (shouldLoad.has(id)) {
+            shouldLoad.delete(id);
+            addExtension(id);
+        }
+    });
+    let extensionMap = new Map();
+    function load(id) {
+        let info = extensionMap.get(id);
+        if (!info) {
+            console.warn('Could not load unknown ID:', id);
+            return;
+        }
+        shouldLoad.add(id);
+        let script = document.head.appendChild(document.createElement('script'));
+        script.src = info.package;
+    }
+    // Load any extension repos
+    // Repos listed first should have priority for duplicate ids
+    let repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse();
+    let repoRequests = repos.map(repo => fetch(proxyUrl + repo).then(r => r.json()));
+    Promise.all(repoRequests)
+        .then((packages) => {
+        flatten(packages).filter(supported).forEach(extension => {
+            extensionMap.set(extension.id, extension);
+        });
+    })
+        .then(() => {
+        // Load those extensions which should be autoloaded
+        ex.storage.get('autoload', []).forEach(load);
+        createPage();
+    });
+    function createPage() {
+        for (let extension of extensionMap.values()) {
+            ui.buildTemplate(tab.querySelector('template'), tab.querySelector('.columns'), [
+                { selector: '.card-header-title', text: `${extension.title} by ${extension.user}` },
+                { selector: '.content', text: extension.description },
+                { selector: 'a', ext_id: extension.id },
+            ]);
+        }
+    }
 });
 
 window['@bhmb/bot'] = { MessageBot: MessageBot$1 };
@@ -2564,5 +2748,6 @@ bot.addExtension('console');
 document.querySelector('.nav-item').click();
 bot.addExtension('messages');
 bot.addExtension('settings');
+bot.addExtension('extensions');
 
 }());

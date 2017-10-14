@@ -7,6 +7,7 @@ import '@bhmb/ui'
 import '@bhmb/messages'
 import '@bhmb/console'
 import './settings'
+import './extensions'
 
 (window as any)['@bhmb/bot'] = { MessageBot }
 const worldId: string = (window as any).worldId
@@ -35,3 +36,4 @@ bot.addExtension('console')
 ;(document.querySelector('.nav-item') as HTMLElement).click()
 bot.addExtension('messages')
 bot.addExtension('settings')
+bot.addExtension('extensions')
