@@ -1245,11 +1245,13 @@ class World {
         watcher.onLeave.sub(name => this._events.onLeave.dispatch(this.getPlayer(name)));
         watcher.onMessage.sub(({ name, message }) => {
             this._events.onMessage.dispatch({ player: this.getPlayer(name), message });
+        });
+        this.onMessage.sub(({ player, message }) => {
             if (/^\/[^ ]/.test(message)) {
                 let [, command, args] = message.match(/^\/([^ ]+) ?(.*)$/);
                 let handler = this._commands.get(command.toLocaleUpperCase());
                 if (handler)
-                    handler(this.getPlayer(name), args);
+                    handler(player, args);
             }
         });
         watcher.start();
