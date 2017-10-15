@@ -9,9 +9,9 @@
     blockheads-api "^0.3.2"
     strongly-typed-events "^1.0.1"
 
-"@bhmb/console@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.1.tgz#4c302eede56e2fcefe010de8bca139ec07f06611"
+"@bhmb/console@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.2.tgz#27df561bf8bae6e2a88bf0add199b9719002a721"
 
 "@bhmb/messages@^1.0.6":
   version "1.0.6"
