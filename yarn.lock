@@ -2,12 +2,11 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.2.tgz#3a61765587e290fd7878c2abd1845789ca21df51"
+"@bhmb/bot@^7.0.4":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.4.tgz#b62917800bb5babee8721c0fdbfb9381e2f57ee4"
   dependencies:
     blockheads-api "^0.3.2"
-    strongly-typed-events "^1.0.1"
 
 "@bhmb/console@^1.0.2":
   version "1.0.2"
@@ -181,9 +180,9 @@ blockheads-api@^0.3.2:
     simple-plist "^0.2.1"
     util.promisify "^1.0.0"
 
-blockheads-api@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.5.tgz#3c4f6595413c7f326a0422bb100abd305466cc09"
+blockheads-api@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.7.tgz#683d4a5fbe1dcbec498ddc014addc001032c5de3"
   dependencies:
     simple-plist "^0.2.1"
     typed-promisify "^0.4.0"
@@ -844,10 +843,6 @@ strip-ansi@^3.0.0:
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-3.0.1.tgz#6a385fb8853d952d5ff05d0e8aaf94278dc63dcf"
   dependencies:
     ansi-regex "^2.0.0"
-
-strongly-typed-events@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/strongly-typed-events/-/strongly-typed-events-1.0.1.tgz#f288cb77d6c9eb8cdb4803fb15826bdb6788500e"
 
 supports-color@^2.0.0:
   version "2.0.0"
