@@ -40,7 +40,7 @@ function __rest(s, e) {
 function __awaiter(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
@@ -696,6 +696,12 @@ class MessageBot$1 {
      */
     get extensions() {
         return [...this._extensions.keys()];
+    }
+    /**
+     * Shortcut for `MessageBot.dependencies.fetch`
+     */
+    get fetch() {
+        return MessageBot$1.dependencies.fetch;
     }
     /**
      * Gets the exports of an extension, returns undefined if the extension is not loaded.
@@ -2126,7 +2132,7 @@ if (!worldId) {
     alert('You must be on a world page to start the bot');
     throw new Error('Bad page');
 }
-MessageBot$1.dependencies = { Api, getWorlds };
+MessageBot$1.dependencies = { Api, getWorlds, fetch };
 let info = {
     name: document.querySelector('#title').textContent,
     id: worldId + ''

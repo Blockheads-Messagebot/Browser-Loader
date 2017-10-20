@@ -23,7 +23,7 @@ if (!worldId) {
     throw new Error('Bad page')
 }
 
-MessageBot.dependencies = { Api, getWorlds }
+MessageBot.dependencies = { Api, getWorlds, fetch }
 
 let info: WorldInfo = {
     name: (document.querySelector('#title') as HTMLElement).textContent as string,
