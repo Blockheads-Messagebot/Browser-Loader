@@ -15,7 +15,7 @@ interface ExtensionInfo {
 const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
 // const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
 
-const proxyUrl = `https://cors-anywhere.herokuapp.com/`
+const proxyUrl = `http://wingysam.xyz:3210/`
 const defaultRepo = `https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
