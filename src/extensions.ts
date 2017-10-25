@@ -12,23 +12,10 @@ interface ExtensionInfo {
     env: string
 }
 
-interface ProxyResponseOK {
-    status: 'ok'
-    data: string
-}
-
-interface ProxyResponseError {
-    status: 'error'
-    message: string
-}
-
-type ProxyResponse = ProxyResponseOK | ProxyResponseError
-
 const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
-const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
+// const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
 
-const proxyUrl = `https://blockheadsfans.com/messagebot/api/proxy?url=`
-const defaultRepo = `https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json`
+export const defaultRepo = `https://gitcdn.xyz/repo/Blockheads-Messagebot/Extensions/master/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
     let env = info.env.toLocaleLowerCase()
@@ -118,19 +105,10 @@ MessageBot.registerExtension('extensions', ex => {
     // Load any extension repos
     // Repos listed first should have priority for duplicate ids
     let repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse()
-    let repoRequests = repos.map(repo => fetch(proxyUrl + repo).then(r => r.json()))
+    let repoRequests = repos.map(repo => fetch(repo).then(r => r.json()))
     Promise.all(repoRequests)
-        .then((responses: ProxyResponse[]) => {
-            let goodResponses = responses.filter(response => {
-                if (response.status != 'ok') {
-                    ui.notify('Failed to get repo.')
-                    return false
-                }
-                return true
-            }) as ProxyResponseOK[]
-            let infos = pluck(goodResponses, 'data').map(s => JSON.parse(s) as ExtensionInfo[])
-
-            flatten(infos).filter(supported).forEach(extension => {
+        .then((responses: ExtensionInfo[][]) => {
+            flatten(responses).filter(supported).forEach(extension => {
                 extensionMap.set(extension.id, extension)
             })
         })
@@ -144,10 +122,11 @@ MessageBot.registerExtension('extensions', ex => {
         for (let extension of extensionMap.values()) {
             ui.buildTemplate(
                 tab.querySelector('template') as HTMLTemplateElement,
-                tab.querySelector('.columns') as HTMLElement,
+                tab.querySelector('tbody') as HTMLElement,
                 [
-                    { selector: '.card-header-title', text: `${extension.title} by ${extension.user}` },
-                    { selector: '.content', text: extension.description },
+                    { selector: '[data-for=title]', text: extension.title },
+                    { selector: '[data-for=description]', text: extension.description },
+                    { selector: '[data-for=author]', text: extension.user },
                     { selector: 'a', ext_id: extension.id },
                 ]
             )

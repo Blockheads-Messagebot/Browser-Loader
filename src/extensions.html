@@ -1,25 +1,35 @@
 <template>
-    <div class="column is-4-desktop is-6-tablet">
-        <div class="card">
-            <header class="card-header">
-                <p class="card-header-title">Title</p>
-            </header>
-            <div class="card-content">
-                <span class="content">Description</span>
-            </div>
-            <div class="card-footer">
-                <a class="card-footer-item">Install</a>
-            </div>
-        </div>
-    </div>
+    <tr>
+        <td data-for="title"></td>
+        <td data-for="actions"><a class="button is-small">Install</a></td>
+        <td data-for="description"></td>
+        <td data-for="author" class="is-hidden-mobile"></td>
+    </tr>
 </template>
 <div class="container is-fluid">
     <section class="section is-small">
         <h3 class="title is-4">Extensions can increase the functionality of the bot.</h3>
         <span>Interested in creating one?
-            <a href="https://github.com/Blockheads-MessageBot/MessageBot/wiki/2.-Development:-Start-Here"
-                target="_blank">Start here.</a>
+            <a href="https://github.com/Blockheads-MessageBot/MessageBot/wiki/2.-Development:-Start-Here" target="_blank">Start here.</a>
         </span>
     </section>
-    <div class="columns is-multiline exts" style="border-top: 1px solid #000"></div>
+    <table class="table is-striped is-fullwidth is-hoverable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+                <th>Description</th>
+                <th class="is-hidden-mobile">Author</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+                <th>Description</th>
+                <th class="is-hidden-mobile">Author</th>
+            </tr>
+        </tfoot>
+        <tbody></tbody>
+    </table>
 </div>

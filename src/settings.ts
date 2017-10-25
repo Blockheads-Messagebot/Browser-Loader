@@ -3,6 +3,8 @@ import { UIExtensionExports } from '@bhmb/ui'
 
 import html from './settings.html'
 
+import { defaultRepo } from './extensions'
+
 const settingDefaults: [string, string | number | boolean][] = [
     // General
     ['messages/announcementDelay', 10],
@@ -15,7 +17,7 @@ const settingDefaults: [string, string | number | boolean][] = [
     ['splitMessages', false],
     ['splitToken', '<split>'],
     ['extensions/devMode', false],
-    ['extensions/repos', 'https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json'],
+    ['extensions/repos', defaultRepo],
 ]
 
 MessageBot.registerExtension('settings', function (ex) {
