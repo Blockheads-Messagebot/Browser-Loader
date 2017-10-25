@@ -1163,6 +1163,12 @@ function __read$1(o, n) {
     return ar;
 }
 
+function __spread$1() {
+    for (var ar = [], i = 0; i < arguments.length; i++)
+        ar = ar.concat(__read$1(arguments[i]));
+    return ar;
+}
+
 var api = function () {
     var menuSlider = document.querySelector('.nav-slider-container .nav-slider');
     var toggleMenu = function () { return menuSlider.classList.toggle('is-active'); };
@@ -1341,6 +1347,8 @@ var api = function () {
         else {
             el.textContent = button;
         }
+        (_a = el.classList).add.apply(_a, __spread$1(styles));
+        var _a;
     };
     var showAlert = function () {
         alertInstance.active = true;
@@ -1378,7 +1386,7 @@ var api = function () {
         alert(p.outerHTML + "<textarea class=\"textarea\"></textarea>", ['OK', 'Cancel'], function () {
             var el = modalBody.querySelector('textarea');
             if (callback)
-                callback(el.textContent || '');
+                callback(el.value || '');
         });
     };
     return {

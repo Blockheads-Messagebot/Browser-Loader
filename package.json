@@ -9,7 +9,7 @@
     "@bhmb/bot": "^7.0.6",
     "@bhmb/console": "^1.0.2",
     "@bhmb/messages": "^1.0.6",
-    "@bhmb/ui": "^1.0.2",
+    "@bhmb/ui": "^1.0.3",
     "babel-core": "^6.26.0",
     "blockheads-api": "^0.3.7",
     "rollup": "^0.50.0",
