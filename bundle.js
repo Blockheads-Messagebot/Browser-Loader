@@ -74,8 +74,11 @@ class MessageBotExtension {
     }
 }
 
+function equalCaseInsensitive(a, b) {
+    return a.localeCompare(b, undefined, { sensitivity: 'base' }) === 0;
+}
 function arrayContainsAny(haystack, ...needles) {
-    return haystack.some(item => needles.includes(item));
+    return haystack.some(item => needles.some(needle => equalCaseInsensitive(item, needle)));
 }
 /**
  * Player class which is returned by the [[World.getPlayer]] method. Should not be created by any other method.
@@ -189,7 +192,7 @@ class Player {
             // Remove device ID from blacklist entry, if there is one
             if (entry.includes(' \\'))
                 entry = entry.substr(0, entry.indexOf(' \\'));
-            if (entry == this._name)
+            if (equalCaseInsensitive(this._name, entry))
                 return true;
             if (this._info.ips.includes(entry))
                 return true;
@@ -2004,8 +2007,8 @@ MessageBot$1.registerExtension('settings', function (ex) {
 var html$2 = "<template>\r\n    <div class=\"column is-4-desktop is-6-tablet\">\r\n        <div class=\"card\">\r\n            <header class=\"card-header\">\r\n                <p class=\"card-header-title\">Title</p>\r\n            </header>\r\n            <div class=\"card-content\">\r\n                <span class=\"content\">Description</span>\r\n            </div>\r\n            <div class=\"card-footer\">\r\n                <a class=\"card-footer-item\">Install</a>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <h3 class=\"title is-4\">Extensions can increase the functionality of the bot.</h3>\r\n        <span>Interested in creating one?\r\n            <a href=\"https://github.com/Blockheads-MessageBot/MessageBot/wiki/2.-Development:-Start-Here\"\r\n                target=\"_blank\">Start here.</a>\r\n        </span>\r\n    </section>\r\n    <div class=\"columns is-multiline exts\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
 
 const flatten = (arr) => arr.reduce((carry, item) => carry.concat(item), []);
-// const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
-const proxyUrl = `https://cors-anywhere.herokuapp.com/`;
+const pluck = (arr, key) => arr.map(item => item[key]);
+const proxyUrl = `https://blockheadsfans.com/messagebot/api/proxy?url=`;
 const defaultRepo = `https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json`;
 function supported(info) {
     let env = info.env.toLocaleLowerCase();
@@ -2100,8 +2103,16 @@ MessageBot$1.registerExtension('extensions', ex => {
     let repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse();
     let repoRequests = repos.map(repo => fetch(proxyUrl + repo).then(r => r.json()));
     Promise.all(repoRequests)
-        .then((packages) => {
-        flatten(packages).filter(supported).forEach(extension => {
+        .then((responses) => {
+        let goodResponses = responses.filter(response => {
+            if (response.status != 'ok') {
+                ui.notify('Failed to get repo.');
+                return false;
+            }
+            return true;
+        });
+        let infos = pluck(goodResponses, 'data').map(s => JSON.parse(s));
+        flatten(infos).filter(supported).forEach(extension => {
             extensionMap.set(extension.id, extension);
         });
     })

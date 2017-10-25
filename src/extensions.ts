@@ -12,10 +12,22 @@ interface ExtensionInfo {
     env: string
 }
 
-const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
-// const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
+interface ProxyResponseOK {
+    status: 'ok'
+    data: string
+}
 
-const proxyUrl = `https://cors-anywhere.herokuapp.com/`
+interface ProxyResponseError {
+    status: 'error'
+    message: string
+}
+
+type ProxyResponse = ProxyResponseOK | ProxyResponseError
+
+const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
+const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
+
+const proxyUrl = `https://blockheadsfans.com/messagebot/api/proxy?url=`
 const defaultRepo = `https://raw.githubusercontent.com/Blockheads-Messagebot/Extensions/master/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
@@ -108,8 +120,17 @@ MessageBot.registerExtension('extensions', ex => {
     let repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse()
     let repoRequests = repos.map(repo => fetch(proxyUrl + repo).then(r => r.json()))
     Promise.all(repoRequests)
-        .then((packages: ExtensionInfo[][]) => {
-            flatten(packages).filter(supported).forEach(extension => {
+        .then((responses: ProxyResponse[]) => {
+            let goodResponses = responses.filter(response => {
+                if (response.status != 'ok') {
+                    ui.notify('Failed to get repo.')
+                    return false
+                }
+                return true
+            }) as ProxyResponseOK[]
+            let infos = pluck(goodResponses, 'data').map(s => JSON.parse(s) as ExtensionInfo[])
+
+            flatten(infos).filter(supported).forEach(extension => {
                 extensionMap.set(extension.id, extension)
             })
         })
