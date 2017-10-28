@@ -178,9 +178,16 @@ big-integer@^1.6.7:
   version "1.6.25"
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.25.tgz#1de45a9f57542ac20121c682f8d642220a34e823"
 
-blockheads-api@^0.3.2, blockheads-api@^0.3.7:
+blockheads-api@^0.3.2:
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.7.tgz#683d4a5fbe1dcbec498ddc014addc001032c5de3"
+  dependencies:
+    simple-plist "^0.2.1"
+    typed-promisify "^0.4.0"
+
+blockheads-api@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.8.tgz#256b63fb24fc0e68fd8fd579d5337934a2c28ef3"
   dependencies:
     simple-plist "^0.2.1"
     typed-promisify "^0.4.0"
@@ -683,9 +690,9 @@ resolve@^1.1.6, resolve@^1.3.2, resolve@^1.4.0:
   dependencies:
     path-parse "^1.0.5"
 
-rollup-plugin-commonjs@^8.2.1:
-  version "8.2.4"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-8.2.4.tgz#435b01fb591cb508dc740196cec8b60f10132e78"
+rollup-plugin-commonjs@^8.2.5:
+  version "8.2.5"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-8.2.5.tgz#924421278a6f879fd976b2ef1a28391b1e4f2a6e"
   dependencies:
     acorn "^5.1.2"
     estree-walker "^0.5.0"

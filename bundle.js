@@ -999,13 +999,14 @@ class Api {
                 created: new Date(firstMatch(/^\t\t<td>Created:<\/td><td>(.*?)<\/td>$/m) + ' GMT-0000'),
                 last_activity: new Date(firstMatch(/^\t\t<td>Last Activity:<\/td><td>(.*?)<\/td>$/m) + ' GMT-0000'),
                 credit_until: new Date(firstMatch(/^\t\t<td>Credit Until:<\/td><td>(.*?)<\/td>$/m) + ' GMT-0000'),
-                link: firstMatch(/^\t<tr><td>Link:<\/td><td><a href="(.*)">\1<\/a>/m),
+                link: firstMatch(/^\t<tr><td>Link:<\/td><td><a href="(.*?)">\1<\/a>/m),
                 pvp: !!firstMatch(/^\$\('#pvp'\)\./m),
                 privacy,
                 password: firstMatch(/^\t\t<td>Password:<\/td><td>(Yes|No)<\/td><\/tr>$/m) == 'Yes',
                 size: firstMatch(/^\t\t<td>Size:<\/td><td>(.*?)<\/td>$/m),
                 whitelist: firstMatch(/<td>Whitelist:<\/td><td>(Yes|No)<\/td>/m) == 'Yes',
                 online,
+                status: firstMatch(/^updateWorld\({id: \d+, worldStatus: '(.*?)'/m)
             };
         });
         /** @inheritdoc */
