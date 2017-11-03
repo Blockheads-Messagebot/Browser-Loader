@@ -1997,9 +1997,14 @@ MessageBot$1.registerExtension('extensions', ex => {
             console.warn('Could not load unknown ID:', id);
             return;
         }
-        shouldLoad.add(id);
-        let script = document.head.appendChild(document.createElement('script'));
-        script.src = info.package;
+        if (MessageBot$1.extensions.includes(id)) {
+            addExtension(id);
+        }
+        else {
+            shouldLoad.add(id);
+            let script = document.head.appendChild(document.createElement('script'));
+            script.src = info.package;
+        }
     }
     // Load any extension repos
     // Repos listed first should have priority for duplicate ids
