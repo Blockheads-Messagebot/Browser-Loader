@@ -15,7 +15,7 @@ interface ExtensionInfo {
 const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
 // const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
 
-export const defaultRepo = `https://gitcdn.xyz/repo/Blockheads-Messagebot/Extensions/master/extensions.json`
+export const defaultRepo = `https://gitcdn.xyz/cdn/Blockheads-Messagebot/Extensions/master/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
     let env = info.env.toLocaleLowerCase()
