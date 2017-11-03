@@ -1443,7 +1443,7 @@ MessageBot$1.registerExtension('ui', function (ex) {
     document.head.querySelectorAll('link').forEach(function (el) { return el.remove(); });
     var style = document.head.appendChild(document.createElement('link'));
     style.rel = 'stylesheet';
-    style.href = 'https://gitcdn.xyz/repo/Blockheads-Messagebot/UI/master/index.css';
+    style.href = 'https://gitcdn.xyz/cdn/Blockheads-Messagebot/UI/master/index.css';
     polyfill();
     // Expose api
     ex.exports = api();
