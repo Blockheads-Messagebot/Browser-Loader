@@ -23,12 +23,14 @@ export class Storage extends AStorage {
     }
 
     clear(prefix: string = ''): void {
-        let remove = []
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i) as string // This is safe.
-            if (key.startsWith(this.head + prefix)) remove.push(key)
-        }
-        remove.forEach(key => localStorage.removeItem(key))
+        this.keys(prefix)
+            .forEach(key => localStorage.removeItem(this.head + key))
+    }
+
+    keys(prefix: string = ''): string[] {
+        return Object.keys(localStorage)
+            .filter(key => key.startsWith(this.head + prefix))
+            .map(key => key.substr(this.head.length))
     }
 
     prefix(prefix: string): AStorage {

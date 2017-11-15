@@ -97,56 +97,42 @@ class Player {
     }
     /**
      * Gets the player's name.
-     *
-     * @return The name of the player.
      */
     get name() {
         return this._name;
     }
     /**
      * Gets the most recently used IP of the player.
-     *
-     * @return the player's IP
      */
     get ip() {
         return this._info.ip;
     }
     /**
      * Gets the all IPs used by the player on the world.
-     *
-     * @return an array of IPs
      */
     get ips() {
         return [...this._info.ips];
     }
     /**
      * Gets the number of times the player has joined the server.
-     *
-     * @return how many times the player has joined.
      */
     get joins() {
         return this._info.joins;
     }
     /**
      * Checks if the player has joined the server.
-     *
-     * @return true if the player has joined before, otherwise false.
      */
     get hasJoined() {
         return this.joins > 0;
     }
     /**
      * Returns true if the player is the owner of the server or is the server.
-     *
-     * @return true if the player is the owner.
      */
     get isOwner() {
         return !!this._info.owner || this._name == 'SERVER';
     }
     /**
      * Checks if the player is an admin or the owner.
-     *
-     * @return true if the player is an admin.
      */
     get isAdmin() {
         // A player is admin if their name or their latest IP is listed on the adminlist, or they are the owner.
@@ -154,8 +140,6 @@ class Player {
     }
     /**
      * Checks if the player is a mod without admin permissions.
-     *
-     * @return true if the player is an admin and not a mod.
      */
     get isMod() {
         // A player is mod if their name or their latest IP is on the modlist
@@ -163,16 +147,12 @@ class Player {
     }
     /**
      * Checks if the player is an admin or a mod.
-     *
-     * @return true if the player is an admin or a mod.
      */
     get isStaff() {
         return this.isAdmin || this.isMod;
     }
     /**
-     * Checks if the player is whitelisted.
-     *
-     * @return true if the player can join the server when it is whitelisted.
+     * Checks if the player is whitelisted. Is true if the player can join the server while it is whitelisted.
      */
     get isWhitelisted() {
         // A player is whitelisted if they are staff or if their name or latest ip is on the whitelist.
@@ -180,8 +160,6 @@ class Player {
     }
     /**
      * Checks if the player is banned.
-     *
-     * @return true if the player is on the blacklist.
      */
     get isBanned() {
         return !this.isStaff && this._lists.blacklist
@@ -304,7 +282,7 @@ class ChatWatcher {
                         return;
                     }
                 }
-                catch (_a) { }
+                catch (_) { }
                 return parseError();
             }
             if (/^[^a-z]+ - Player Disconnected /.test(message)) {
@@ -316,7 +294,7 @@ class ChatWatcher {
                         return;
                     }
                 }
-                catch (_b) { }
+                catch (_) { }
                 return parseError();
             }
             if (message.slice(0, 18).includes(': ')) {
@@ -344,7 +322,7 @@ class ChatWatcher {
                 log.forEach(this.parse);
                 this.timeoutId = setTimeout(this.checkChat, 5000, nextId);
             }
-            catch (_a) {
+            catch (_) {
                 // Network error, wait 30 seconds before retrying
                 this.timeoutId = setTimeout(this.checkChat, 30000, 0);
                 return;
@@ -623,14 +601,13 @@ class World {
 
 /**
  * The storage class used by the [[MessageBot]] class and all [[MessageBotExtension]] instances.
- * It is expected that the
  */
 class Storage {
     /**
      * Utility method to use and automatically save a key
      * @param key the key use when getting and setting the value
      * @param fallback the fallback if the key doesn't exist
-     * @param callback the function to be called with the data, must return the value to be saved
+     * @param callback the function to be called with the data, if the callback returns null or undefined, it is assumed that the value has been mutated and will be saved.
      */
     with(key, fallback, callback) {
         let value = this.get(key, fallback);
@@ -1087,13 +1064,13 @@ class Storage$1 extends Storage {
         localStorage.setItem(this.head + key, JSON.stringify(value));
     }
     clear(prefix = '') {
-        let remove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i); // This is safe.
-            if (key.startsWith(this.head + prefix))
-                remove.push(key);
-        }
-        remove.forEach(key => localStorage.removeItem(key));
+        this.keys(prefix)
+            .forEach(key => localStorage.removeItem(this.head + key));
+    }
+    keys(prefix = '') {
+        return Object.keys(localStorage)
+            .filter(key => key.startsWith(this.head + prefix))
+            .map(key => key.substr(this.head.length));
     }
     prefix(prefix) {
         return new Storage$1(this.head + prefix);
@@ -1914,7 +1891,7 @@ var html$2 = "<template>\r\n    <tr>\r\n        <td data-for=\"title\"></td>\r\n
 
 const flatten = (arr) => arr.reduce((carry, item) => carry.concat(item), []);
 // const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
-const defaultRepo = `https://gitcdn.xyz/repo/Blockheads-Messagebot/Extensions/master/extensions.json`;
+const defaultRepo = `https://gitcdn.xyz/cdn/Blockheads-Messagebot/Extensions/master/extensions.json`;
 function supported(info) {
     let env = info.env.toLocaleLowerCase();
     return [

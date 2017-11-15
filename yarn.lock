@@ -2,11 +2,11 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.0.6":
-  version "7.0.6"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.6.tgz#71fa82dbb170166c1590f86230dc070632e52fcb"
+"@bhmb/bot@^7.0.7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.7.tgz#25a2473ccdf65a55db5e10ab450bbd425f7fac4b"
   dependencies:
-    blockheads-api "^0.3.2"
+    blockheads-api "^0.3.9"
 
 "@bhmb/console@^1.0.2":
   version "1.0.2"
@@ -178,16 +178,9 @@ big-integer@^1.6.7:
   version "1.6.25"
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.25.tgz#1de45a9f57542ac20121c682f8d642220a34e823"
 
-blockheads-api@^0.3.2:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.7.tgz#683d4a5fbe1dcbec498ddc014addc001032c5de3"
-  dependencies:
-    simple-plist "^0.2.1"
-    typed-promisify "^0.4.0"
-
-blockheads-api@^0.3.8:
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.8.tgz#256b63fb24fc0e68fd8fd579d5337934a2c28ef3"
+blockheads-api@^0.3.9:
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/blockheads-api/-/blockheads-api-0.3.9.tgz#0c07774e70b63fd4a0ff506f8a4aa25d1c3a1a6b"
   dependencies:
     simple-plist "^0.2.1"
     typed-promisify "^0.4.0"
@@ -744,9 +737,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.50.0:
-  version "0.50.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.50.0.tgz#4c158f4e780e6cb33ff0dbfc184a52cc58cd5f3b"
+rollup@^0.51.5:
+  version "0.51.5"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.51.5.tgz#5caf9101fcaefe344065701ece7de697631a8035"
 
 semver@^5.3.0:
   version "5.4.1"
