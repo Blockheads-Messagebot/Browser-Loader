@@ -1,4 +1,4 @@
-(function () {
+(function (crypto) {
 'use strict';
 
 /*! *****************************************************************************
@@ -433,6 +433,10 @@ class World {
             return Object.assign({}, overview, { created: cloneDate(overview.created), last_activity: cloneDate(overview.last_activity), credit_until: cloneDate(overview.credit_until), online: this.online });
         });
         /**
+         * Returns the current world status, will always make a request to the server.
+         */
+        this.getStatus = () => this._api.getStatus();
+        /**
          * Gets the server's lists
          */
         this.getLists = (refresh = false) => {
@@ -782,6 +786,43 @@ class MessageBot$$1 extends MessageBot$1 {
     }
 }
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __awaiter$3(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
 /**
  * This module should not be used by consumers of this library.
  * @private
@@ -790,9 +831,9 @@ class MessageBot$$1 extends MessageBot$1 {
  * Parses logs from the portal into a standard format. If you are consuming this library, you don't need to know anything about it.
  * @private
  */
-class PortalLogParser {
+class LogParser {
     /**
-     * Creates a new instance of the PortalLogParser class.
+     * Creates a new instance of the LogParser class.
      */
     constructor() {
         /**
@@ -805,7 +846,7 @@ class PortalLogParser {
             lines = lines.slice(0);
             // Assume first line is valid, if it isn't it will be dropped.
             for (let i = lines.length - 1; i > 0; i--) {
-                let line = lines[i];
+                const line = lines[i];
                 if (!this.isValidLine(line)) {
                     lines[i - 1] += '\n' + lines.splice(i, 1);
                     continue;
@@ -815,7 +856,7 @@ class PortalLogParser {
             if (this.isValidLine(lines[0])) {
                 this.addLine(lines[0]);
             }
-            let entries = this.entries.reverse();
+            const entries = this.entries.reverse();
             this.entries = [];
             return entries;
         };
@@ -823,7 +864,7 @@ class PortalLogParser {
             return /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d{3} blockheads_server/.test(line);
         };
         this.addLine = (line) => {
-            let ts = line.substr(0, 24)
+            const ts = line.substr(0, 24)
                 .replace(' ', 'T')
                 .replace(' ', 'Z');
             this.entries.push({
@@ -836,54 +877,30 @@ class PortalLogParser {
     }
 }
 
-/**
- * This is an internal module which should not be used by library consumers.
- * @private
- */
-/**
- * Functions defined in 4.1.1
- */
-/**
- * Computes the sha1 hash of the string as described by http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
- * See http://www.movable-type.co.uk/scripts/sha1.html for explanation of some of the bitwise magic.
- *
- * You probably don't want to touch this code.
- * @private
- * @param message the string to compute the SHA1 hash of
- */
-
-var __awaiter$3 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 const root = 'http://portal.theblockheads.net';
 let request;
 try {
     request = fetch;
 }
 catch (_) { }
-// Makes it possible to set the fetch function which the module uses. Necessary for terminal usage.
-
 function unescapeHTML(html) {
-    let map = {
-        '&lt;': '<',
-        '&gt;': '>',
-        '&amp;': '&',
-        '&#39;': '\'',
-        '&quot;': '"',
+    const map = {
+        'lt': '<',
+        'gt': '>',
+        'amp': '&',
+        '#39': '\'',
+        'quot': '"',
     };
-    return html.replace(/(&.*?;)/g, (_, first) => map[first]);
+    return html.replace(/&(lt|gt|amp|#39|quot);/g, (_, first) => map[first]);
 }
 function makeRequest(url, options = {}) {
-    let headers = { 'X-Requested-With': 'XMLHttpRequest' };
+    const headers = { 'X-Requested-With': 'XMLHttpRequest' };
     if (options.method == 'POST') {
         headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
-    return request(`${root}${url}`, Object.assign({ mode: 'same-origin', credentials: 'same-origin', redirect: 'follow', headers }, options));
+    return request(`${root}${url}`, Object.assign({ mode: 'same-origin', credentials: 'same-origin', redirect: 'follow', 
+        // Typescript incorrectly throws an error due to types here
+        headers: headers }, options));
 }
 function requestJSON(url, options) {
     return makeRequest(url, options).then(r => r.json());
@@ -892,24 +909,17 @@ function requestPage(url, options) {
     return makeRequest(url, options).then(r => r.text());
 }
 /**
- * Function to try to log in, if the log in fails, the returned promise will reject, otherwise it will resolve.
- *
- * @param username the username to try to log in with
- * @param password the password to try to log in with
- */
-
-/**
- * Gets all worlds owned by the logged in user.
- */
+* Gets all worlds owned by the logged in user.
+*/
 function getWorlds() {
     return __awaiter$3(this, void 0, void 0, function* () {
-        let page = yield requestPage('/worlds');
-        let lines = page.split('\n');
-        let worlds = [];
+        const page = yield requestPage('/worlds');
+        const lines = page.split('\n');
+        const worlds = [];
         lines.forEach(line => {
             if (/\t\tupdateWorld/.test(line)) {
-                let name = line.match(/name: '([^']+?)'/);
-                let id = line.match(/id: (\d+)/);
+                const name = line.match(/name: '([^']+?)'/);
+                const id = line.match(/id: (\d+)/);
                 worlds.push({
                     name: unescapeHTML(name[1]),
                     id: id[1]
@@ -923,13 +933,13 @@ function getWorlds() {
 class Api {
     constructor(info) {
         this.info = info;
-        this.parser = new PortalLogParser();
+        this.parser = new LogParser();
         /** @inheritdoc */
         this.getLists = () => __awaiter$3(this, void 0, void 0, function* () {
-            let page = yield requestPage(`/worlds/lists/${this.info.id}`);
-            let getList = (name) => {
+            const page = yield requestPage(`/worlds/lists/${this.info.id}`);
+            const getList = (name) => {
                 let names = [];
-                let list = page.match(new RegExp(`<textarea name="${name}">([\\s\\S]*?)</textarea>`));
+                const list = page.match(new RegExp(`<textarea name="${name}">([\\s\\S]*?)</textarea>`));
                 if (list) {
                     names = unescapeHTML(list[1])
                         .split(/\r?\n/);
@@ -946,7 +956,7 @@ class Api {
         });
         /** @inheritdoc */
         this.setLists = (lists) => __awaiter$3(this, void 0, void 0, function* () {
-            let makeSafe = (list) => encodeURIComponent(list.join('\n'));
+            const makeSafe = (list) => encodeURIComponent(list.join('\n'));
             let body = `admins=${makeSafe(lists.adminlist)}`;
             body += `&modlist=${makeSafe(lists.modlist)}`;
             body += `&whitelist=${makeSafe(lists.whitelist)}`;
@@ -958,14 +968,14 @@ class Api {
         });
         /** @inheritdoc */
         this.getOverview = () => __awaiter$3(this, void 0, void 0, function* () {
-            let page = yield requestPage(`/worlds/${this.info.id}`);
-            let firstMatch = (r, fallback = '') => {
-                let m = page.match(r);
+            const page = yield requestPage(`/worlds/${this.info.id}`);
+            const firstMatch = (r, fallback = '') => {
+                const m = page.match(r);
                 return m ? m[1] : fallback;
             };
-            let privacy = firstMatch(/^\$\('#privacy'\).val\('(.*?)'\)/m, 'public');
+            const privacy = firstMatch(/^\$\('#privacy'\).val\('(.*?)'\)/m, 'public');
             let online = [];
-            let match = page.match(/^\t<tr><td class="left">(.*?)(?=<\/td>)/gm);
+            const match = page.match(/^\t<tr><td class="left">(.*?)(?=<\/td>)/gm);
             if (match) {
                 online = online.concat(match.map(s => s.substr(22)));
             }
@@ -1005,6 +1015,13 @@ class Api {
             }, () => ({ log: [], nextId: lastId })); //Network error, don't reset nextId
         };
         /** @inheritdoc */
+        this.getStatus = () => {
+            return requestJSON('/api', {
+                method: 'POST',
+                body: `command=status&worldId=${this.info.id}`
+            }).then(response => response.worldStatus);
+        };
+        /** @inheritdoc */
         this.send = (message) => {
             return requestJSON('/api', {
                 method: 'POST',
@@ -1039,6 +1056,14 @@ class Api {
             })
                 .then(() => undefined, console.error);
         };
+    }
+    /** @inheritdoc */
+    get name() {
+        return this.info.name;
+    }
+    /** @inheritdoc */
+    get id() {
+        return this.info.id;
     }
 }
 
@@ -2150,4 +2175,4 @@ function main() {
 }
 main();
 
-}());
+}(crypto));
