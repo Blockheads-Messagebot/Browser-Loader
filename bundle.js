@@ -1453,11 +1453,7 @@ MessageBot$1.registerExtension('ui', function (ex) {
     ex.exports = api();
 });
 
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('@bhmb/bot')) :
-	typeof define === 'function' && define.amd ? define(['@bhmb/bot'], factory) :
-	(factory(global['@bhmb/bot']));
-}(undefined, (function (bot) { function checkJoins(player, message) {
+function checkJoins(player, message) {
     return player.joins >= message.joins_low && player.joins <= message.joins_high;
 }
 function checkGroups(player, message) {
@@ -1615,7 +1611,7 @@ and limitations under the License.
 
 
 
-function __awaiter(thisArg, _arguments, P, generator) {
+function __awaiter$4(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -1655,7 +1651,7 @@ function getElementWithClass(className, element) {
 class MessagesTab extends RemovableMessageHelper {
     constructor({ name, ex, id }) {
         super(id, ex);
-        this.setup = () => __awaiter(this, void 0, void 0, function* () {
+        this.setup = () => __awaiter$4(this, void 0, void 0, function* () {
             yield waitForGlobal('dragula', 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js');
             this.insertHTML();
             this.template = this.tab.querySelector('template');
@@ -1795,7 +1791,7 @@ class AnnouncementTab extends MessagesTab {
 
 var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n    font-size: 0.6rem;\r\n}\r\n\r\n.messages-container {\r\n    border-top: 1px solid #cccccc;\r\n    padding-top: 1em;\r\n}\r\n\r\n.messages-container .box {\r\n    padding: 0.7em;\r\n    padding-bottom: 0;\r\n    margin-bottom: 1em;\r\n}\r\n\r\n.messages-container .columns {\r\n    margin-bottom: 0;\r\n}\r\n\r\n.messages-container .drag::after {\r\n    content: \" \\2261\";\r\n}\r\n\r\n.messages-container .level-options {\r\n    display: flex;\r\n    flex-direction: row;\r\n    align-items: center;\r\n}\r\n@media screen and (max-width: 768px) {\r\n    .messages-container .level-options {\r\n        flex-wrap: wrap;\r\n    }\r\n}\r\n\r\n.messages-container summary {\r\n    outline: none;\r\n}\r\n\r\n.is-adding-message {\r\n    position: fixed;\r\n    left: 1em;\r\n    z-index: 10;\r\n}\r\n\r\n.messages-container p {\r\n    margin-right: 0.5em;\r\n}\r\n";
 
-bot.MessageBot.registerExtension('@bhmb/messages', function (ex, world) {
+MessageBot$1.registerExtension('@bhmb/messages', function (ex, world) {
     let listeners = [];
     ex.remove = () => listeners.forEach(l => l.remove());
     let hasLoaded = false;
@@ -1837,8 +1833,6 @@ bot.MessageBot.registerExtension('@bhmb/messages', function (ex, world) {
         listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => dragStyle.remove() }, { remove: () => ui.removeTabGroup('messages') });
     }
 });
-
-})));
 
 function history(input) {
     let history = [];
@@ -1885,7 +1879,7 @@ function history(input) {
 
 var html = "<template>\r\n    <li>\r\n        <span>NAME</span>\r\n        <span>: Message</span>\r\n    </li>\r\n</template>\r\n<div id=\"console\">\r\n    <div class=\"chat\">\r\n        <ul></ul>\r\n    </div>\r\n    <div class=\"chat-control\">\r\n        <div class=\"field has-addons\">\r\n            <p class=\"control is-expanded\">\r\n                <input type=\"text\" class=\"input\" />\r\n            </p>\r\n            <p class=\"control\">\r\n                <button class=\"input button is-primary\">SEND</button>\r\n            </p>\r\n        </div>\r\n    </div>\r\n</div>";
 
-var css = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
+var css$1 = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
 
 MessageBot$1.registerExtension('console', function (ex, world) {
     if (!ex.bot.getExports('ui')) {
@@ -1894,7 +1888,7 @@ MessageBot$1.registerExtension('console', function (ex, world) {
     const ui = ex.bot.getExports('ui');
     // Create the tab.
     let style = document.head.appendChild(document.createElement('style'));
-    style.textContent = css;
+    style.textContent = css$1;
     let tab = ui.addTab('Console');
     tab.innerHTML = html;
     let chatUl = tab.querySelector('ul');
