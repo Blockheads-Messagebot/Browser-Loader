@@ -12,9 +12,9 @@
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.2.tgz#27df561bf8bae6e2a88bf0add199b9719002a721"
 
-"@bhmb/messages@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.8.tgz#f412d8e7298010cbecd522fa100c8ae8830d9f9f"
+"@bhmb/messages@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.10.tgz#87e7b8515f7de879077fb82c9e3b0fcfb6f39ca9"
 
 "@bhmb/ui@^1.0.6":
   version "1.0.6"
