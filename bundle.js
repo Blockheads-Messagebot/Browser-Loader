@@ -1453,7 +1453,11 @@ MessageBot$1.registerExtension('ui', function (ex) {
     ex.exports = api();
 });
 
-function checkJoins(player, message) {
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('@bhmb/bot')) :
+	typeof define === 'function' && define.amd ? define(['@bhmb/bot'], factory) :
+	(factory(global['@bhmb/bot']));
+}(undefined, (function (bot) { function checkJoins(player, message) {
     return player.joins >= message.joins_low && player.joins <= message.joins_high;
 }
 function checkGroups(player, message) {
@@ -1563,8 +1567,14 @@ class AnnouncementListener extends RemovableMessageHelper {
         this.run = () => {
             if (this.index >= this.messages.length)
                 this.index = 0;
-            if (this.messages[this.index])
-                this.ex.bot.send(this.messages[this.index++].message);
+            if (!this.ex.world.online.length) {
+                this.index = 0;
+            }
+            else {
+                const { message } = this.messages[this.index];
+                if (message)
+                    this.ex.bot.send(message);
+            }
             this.timeoutId = setTimeout(this.run, this.delay);
         };
         this.timeoutId = setTimeout(this.run, this.delay);
@@ -1577,18 +1587,76 @@ class AnnouncementListener extends RemovableMessageHelper {
     }
 }
 
-var joinHtml = "<template>\r\n    <div class=\"column is-4-desktop is-6-tablet\">\r\n        <div class=\"box\">\r\n            <label> Message: <textarea data-target=\"message\" class=\"textarea is-fluid m\"></textarea></label>\r\n            <details>\r\n                <summary>More options <small class=\"summary\"></small></summary>\r\n                <label>Player is: <select data-target=\"group\">\r\n                    <option value=\"all\">anyone</option>\r\n                    <option value=\"staff\">a staff member</option>\r\n                    <option value=\"mod\">a mod</option>\r\n                    <option value=\"admin\">an admin</option>\r\n                    <option value=\"owner\">the owner</option>\r\n                </select></label>\r\n                <br>\r\n                <label>Player is not: <select data-target=\"not_group\">\r\n                    <option value=\"nobody\">nobody</option>\r\n                    <option value=\"staff\">a staff member</option>\r\n                    <option value=\"mod\">a mod</option>\r\n                    <option value=\"admin\">an admin</option>\r\n                    <option value=\"owner\">the owner</option>\r\n                </select></label>\r\n                <br>\r\n                <input type=\"number\" value=\"0\" data-target=\"joins_low\">\r\n                <span> &le; player joins &le; </span>\r\n                <input type=\"number\" value=\"9999\" data-target=\"joins_high\">\r\n            </details>\r\n            <a>Delete</a>\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-pulled-right\">+</span>\r\n        <h3 class=\"title is-4\">These are checked when a player joins the server.</h3>\r\n        <span>You can use {{Name}}, {{NAME}}, {{name}}, and {{ip}} in your message.</span>\r\n    </section>\r\n    <div class=\"columns is-multiline messages-container\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
 
-var leaveHtml = "<template>\r\n    <div class=\"column is-4-desktop is-6-tablet\">\r\n        <div class=\"box\">\r\n            <label>Message\r\n                <textarea class=\"textarea is-fluid\" data-target=\"message\"></textarea>\r\n            </label>\r\n            <details>\r\n                <summary>More options\r\n                    <small class=\"summary\"></small>\r\n                </summary>\r\n                <label>Player is:\r\n                    <select data-target=\"group\">\r\n                        <option value=\"all\">anyone</option>\r\n                        <option value=\"staff\">a staff member</option>\r\n                        <option value=\"mod\">a mod</option>\r\n                        <option value=\"admin\">an admin</option>\r\n                        <option value=\"owner\">the owner</option>\r\n                    </select>\r\n                </label>\r\n                <br>\r\n                <label>Player is not:\r\n                    <select data-target=\"not_group\">\r\n                        <option value=\"nobody\">nobody</option>\r\n                        <option value=\"staff\">a staff member</option>\r\n                        <option value=\"mod\">a mod</option>\r\n                        <option value=\"admin\">an admin</option>\r\n                        <option value=\"owner\">the owner</option>\r\n                    </select>\r\n                </label>\r\n                <br>\r\n                <input type=\"number\" value=\"0\" data-target=\"joins_low\">\r\n                <span> &le; player joins &le; </span>\r\n                <input type=\"number\" value=\"9999\" data-target=\"joins_high\">\r\n            </details>\r\n            <a>Delete</a>\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-pulled-right\">+</span>\r\n        <h3 class=\"title is-4\">These are checked when a player leaves the server.</h3>\r\n        <span>You can use {{Name}}, {{NAME}}, {{name}}, and {{ip}} in your message.</span>\r\n    </section>\r\n    <div class=\"columns is-multiline messages-container\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
 
-var triggerHtml = "<template>\r\n    <div class=\"column is-4-desktop is-6-tablet\">\r\n        <div class=\"box\">\r\n            <label>Trigger:\r\n                <input class=\"input\" data-target=\"trigger\">\r\n            </label>\r\n            <label>Message:\r\n                <textarea class=\"textarea is-fluid\" data-target=\"message\"></textarea>\r\n            </label>\r\n            <details>\r\n                <summary>More options\r\n                    <small class=\"summary\"></small>\r\n                </summary>\r\n                <label>Player is:\r\n                    <select data-target=\"group\">\r\n                        <option value=\"all\">anyone</option>\r\n                        <option value=\"staff\">a staff member</option>\r\n                        <option value=\"mod\">a mod</option>\r\n                        <option value=\"admin\">an admin</option>\r\n                        <option value=\"owner\">the owner</option>\r\n                    </select>\r\n                </label>\r\n                <br>\r\n                <label>Player is not:\r\n                    <select data-target=\"not_group\">\r\n                        <option value=\"nobody\">nobody</option>\r\n                        <option value=\"staff\">a staff member</option>\r\n                        <option value=\"mod\">a mod</option>\r\n                        <option value=\"admin\">an admin</option>\r\n                        <option value=\"owner\">the owner</option>\r\n                    </select>\r\n                </label>\r\n                <br>\r\n                <input type=\"number\" value=\"0\" data-target=\"joins_low\">\r\n                <span> &le; player joins &le; </span>\r\n                <input type=\"number\" value=\"9999\" data-target=\"joins_high\">\r\n            </details>\r\n            <a>Delete</a>\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-pulled-right\">+</span>\r\n        <h3 class=\"title is-4\">These are checked whenever someone says something.</h3>\r\n        <span>You can use {{Name}}, {{NAME}}, {{name}}, and {{ip}} in your message. If you put an asterisk (*) in your trigger,\r\n            it will be treated as a wildcard. (Trigger \"te*st\" will match \"tea stuff\" and \"test\")</span>\r\n    </section>\r\n    <div class=\"columns is-multiline messages-container\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
 
-var annHtml = "<template>\r\n    <div class=\"column is-full\">\r\n        <div class=\"box\">\r\n            <label>Send:</label>\r\n            <textarea class=\"textarea is-fluid\" data-target=\"message\"></textarea>\r\n            <a>Delete</a>\r\n        </div>\r\n        <div>\r\n            Wait X minutes...\r\n        </div>\r\n    </div>\r\n</template>\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-pulled-right\">+</span>\r\n        <h3 class=\"title is-4\">These are sent according to a regular schedule.</h3>\r\n        <span>If you have one announcement, it is sent every X minutes, if you have two, then the first is sent at X minutes, and the second is sent X minutes after the first. Change X in the settings tab. Once the bot reaches the end of the list, it starts over at the top.</span>\r\n    </section>\r\n    <div class=\"columns is-multiline messages-container\" style=\"border-top: 1px solid #000\"></div>\r\n</div>";
 
+
+
+
+
+
+
+
+
+
+
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+var joinHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-3\">\r\n                <details>\r\n                    <summary>More options</summary>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"group\" class=\"select is-small\">\r\n                                <option value=\"all\">anyone</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is not </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"not_group\" class=\"select is-small\">\r\n                                <option value=\"nobody\">nobody</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <div class=\"control\">\r\n                            <input type=\"number\" class=\"input is-small\" value=\"0\" data-target=\"joins_low\" min=\"0\">\r\n                            <span class=\"has-text-weight-bold\"> &le; player joins &le; </span>\r\n                            <input type=\"number\" class=\"input is-small\" value=\"9999\" data-target=\"joins_high\">\r\n                        </div>\r\n                    </div>\r\n                </details>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\">+</span>\r\n        <h3 class=\"title is-4\">Join Messages</h3>\r\n        <ul>\r\n            <li>These messages will be checked when a player joins the server.</li>\r\n            <li>{{NAME}}, {{Name}}, and {{name}} in the message will be replaced with the user's name.</li>\r\n        </ul>\r\n    </section>\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
+
+var leaveHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-3\">\r\n                <details>\r\n                    <summary>More options</summary>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"group\" class=\"select is-small\">\r\n                                <option value=\"all\">anyone</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is not </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"not_group\" class=\"select is-small\">\r\n                                <option value=\"nobody\">nobody</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <div class=\"control\">\r\n                            <input type=\"number\" class=\"input is-small\" value=\"0\" data-target=\"joins_low\" min=\"0\">\r\n                            <span class=\"has-text-weight-bold\"> &le; player joins &le; </span>\r\n                            <input type=\"number\" class=\"input is-small\" value=\"9999\" data-target=\"joins_high\">\r\n                        </div>\r\n                    </div>\r\n                </details>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\">+</span>\r\n        <h3 class=\"title is-4\">Leave Messages</h3>\r\n        <ul>\r\n            <li>These messages will be checked when a player leaves the server.</li>\r\n            <li>{{NAME}}, {{Name}}, and {{name}} in the message will be replaced with the user's name.</li>\r\n        </ul>\r\n    </section>\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
+
+var triggerHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Trigger</p>\r\n            </div>\r\n            <div class=\"column is-2-desktop\">\r\n                <input class=\"input is-small\" data-target=\"trigger\">\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-3\">\r\n                <details>\r\n                    <summary>More options</summary>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"group\" class=\"select is-small\">\r\n                                <option value=\"all\">anyone</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is not </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"not_group\" class=\"select is-small\">\r\n                                <option value=\"nobody\">nobody</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <div class=\"control\">\r\n                            <input type=\"number\" class=\"input is-small\" value=\"0\" data-target=\"joins_low\" min=\"0\">\r\n                            <span class=\"has-text-weight-bold\"> &le; player joins &le; </span>\r\n                            <input type=\"number\" class=\"input is-small\" value=\"9999\" data-target=\"joins_high\">\r\n                        </div>\r\n                    </div>\r\n                </details>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-widescreen\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\" title=\"Add trigger message\">+</span>\r\n        <h3 class=\"title is-4\">Triggers</h3>\r\n        <ul>\r\n            <li>The trigger will be checked against chat messages, if it matches, the message will be sent.</li>\r\n            <li>Triggers are case-insensitive.</li>\r\n            <li>{{NAME}}, {{Name}}, and {{name}} in the message will be replaced with the user's name.</li>\r\n            <li><code>*</code> will be treated as a wildcard.</li>\r\n            <li>Triggers are matched in order, if more than the max number are matched, later triggers will not be sent.</li>\r\n            <li>Change the maximum number of responses under settings.</li>\r\n        </ul>\r\n    </section>\r\n\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
+
+var annHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n        <div>\r\n            Wait X minutes...\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-fluid\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\">+</span>\r\n        <h3 class=\"title is-4\">Announcements</h3>\r\n        <ul>\r\n            <li>These are sent according to a regular schedule.</li>\r\n            <li>If you have one announcement, it is sent every X minutes, if you have two, then the first is sent at X minutes, and the second\r\n            is sent X minutes after the first. Change X in the settings tab. Once the bot reaches the end of the list, it starts over\r\n            at the top.</li>\r\n            <li>If no players are online when a message is scheduled to be sent, no message will be sent and the next message will reset to the first message.</li>\r\n        </ul>\r\n    </section>\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
+
+function waitForGlobal(variable, url) {
+    return new Promise(resolve => {
+        const prev = document.querySelector(`script[src="${url}"]`);
+        if (!prev) {
+            const el = document.head.appendChild(document.createElement('script'));
+            el.src = url;
+        }
+        const interval = setInterval(() => {
+            if (window && window[variable]) {
+                resolve();
+                clearInterval(interval);
+            }
+        });
+    });
+}
+function getElementWithClass(className, element) {
+    if (!element)
+        return;
+    return element.classList.contains(className) ? element : getElementWithClass(className, element.parentElement);
+}
 class MessagesTab extends RemovableMessageHelper {
     constructor({ name, ex, id }) {
         super(id, ex);
-        this.setup = () => {
+        this.setup = () => __awaiter(this, void 0, void 0, function* () {
+            yield waitForGlobal('dragula', 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js');
             this.insertHTML();
             this.template = this.tab.querySelector('template');
             this.root = this.tab.querySelector('.messages-container');
@@ -1596,35 +1664,41 @@ class MessagesTab extends RemovableMessageHelper {
             this.tab.addEventListener('input', () => this.save());
             // Create a new message
             let button = this.tab.querySelector('.button.is-primary');
-            button.addEventListener('click', () => {
-                this.addMessage();
-            });
+            button.addEventListener('click', () => this.addMessage());
             // Deleting messages
             this.tab.addEventListener('click', event => {
-                let target = event.target;
-                if (target.tagName == 'A' && target.textContent == 'Delete') {
+                const target = event.target;
+                if (target.matches('[data-do=delete]')) {
                     event.preventDefault();
-                    this.ui.alert('Really delete this message?', [{ text: 'Delete', style: 'is-danger' }, { text: 'Cancel' }], result => {
-                        if (result != 'Delete')
-                            return;
-                        let parent = target;
-                        while (!parent.classList.contains('column')) {
-                            parent = parent.parentElement;
-                        }
-                        parent.remove();
-                        this.save();
-                    });
+                    // Todo: Undo
+                    const row = getElementWithClass('box', target);
+                    if (!row)
+                        return;
+                    row.remove();
                 }
+                this.save();
+            });
+            // Moving up / down
+            dragula([this.root], {
+                moves(_el, _container, handle) {
+                    return handle.classList.contains('drag');
+                }
+            })
+                .on('drop', () => this.save())
+                .on('drag', (el) => {
+                const details = el.querySelector('details');
+                if (details)
+                    details.open = false;
             });
             this.ex.storage.get(this.id, []).forEach(message => {
                 this.addMessage(message);
             });
-        };
+        });
         this.getMessages = () => {
             let messages = [];
-            Array.from(this.root.children).forEach(element => {
+            this.root.querySelectorAll('.box').forEach(element => {
                 let data = {};
-                Array.from(element.querySelectorAll('[data-target]')).forEach((input) => {
+                element.querySelectorAll('[data-target]').forEach((input) => {
                     let name = input.dataset['target'];
                     if (!name)
                         return;
@@ -1642,7 +1716,7 @@ class MessagesTab extends RemovableMessageHelper {
         };
         this.ui = ex.bot.getExports('ui');
         this.ex = ex;
-        this.tab = this.ui.addTab(name, 'messages');
+        this.tab = this.ui.addTab(name);
     }
     remove() {
         this.ui.removeTab(this.tab);
@@ -1659,6 +1733,7 @@ class JoinTab extends MessagesTab {
         };
         this.addMessage = (msg = {}) => {
             this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-for=message-trim]', text: msg.message || '' },
                 { selector: '[data-target=message]', text: msg.message || '' },
                 { selector: '[data-target=joins_low]', value: msg.joins_low || 0 },
                 { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 },
@@ -1676,6 +1751,7 @@ class LeaveTab extends MessagesTab {
         };
         this.addMessage = (msg = {}) => {
             this.ui.buildTemplate(this.template, this.root, [
+                { selector: '[data-for=message-trim]', text: msg.message || '' },
                 { selector: '[data-target=message]', text: msg.message || '' },
                 { selector: '[data-target=joins_low]', value: msg.joins_low || 0 },
                 { selector: '[data-target=joins_high]', value: msg.joins_high || 9999 },
@@ -1717,9 +1793,9 @@ class AnnouncementTab extends MessagesTab {
     }
 }
 
-var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n}\r\n\r\n.messages-container small {\r\n    color: #777;\r\n}\r\n";
+var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n    font-size: 0.6rem;\r\n}\r\n\r\n.messages-container {\r\n    border-top: 1px solid #cccccc;\r\n    padding-top: 1em;\r\n}\r\n\r\n.messages-container .box {\r\n    padding: 0.7em;\r\n    padding-bottom: 0;\r\n    margin-bottom: 1em;\r\n}\r\n\r\n.messages-container .columns {\r\n    margin-bottom: 0;\r\n}\r\n\r\n.messages-container .drag::after {\r\n    content: \" \\2261\";\r\n}\r\n\r\n.messages-container .level-options {\r\n    display: flex;\r\n    flex-direction: row;\r\n    align-items: center;\r\n}\r\n@media screen and (max-width: 768px) {\r\n    .messages-container .level-options {\r\n        flex-wrap: wrap;\r\n    }\r\n}\r\n\r\n.messages-container summary {\r\n    outline: none;\r\n}\r\n\r\n.is-adding-message {\r\n    position: fixed;\r\n    left: 1em;\r\n    z-index: 10;\r\n}\r\n\r\n.messages-container p {\r\n    margin-right: 0.5em;\r\n}\r\n";
 
-MessageBot$1.registerExtension('messages', function (ex, world) {
+bot.MessageBot.registerExtension('@bhmb/messages', function (ex, world) {
     let listeners = [];
     ex.remove = () => listeners.forEach(l => l.remove());
     let hasLoaded = false;
@@ -1746,6 +1822,9 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
     if (ex.bot.getExports('ui')) {
         let style = document.head.appendChild(document.createElement('style'));
         style.innerHTML = css;
+        let dragStyle = document.head.appendChild(document.createElement('link'));
+        dragStyle.rel = 'stylesheet';
+        dragStyle.href = 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.css';
         let ui = ex.bot.getExports('ui');
         ui.addTabGroup('Messages', 'messages');
         let tabs = [
@@ -1755,9 +1834,11 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
             new AnnouncementTab(ex),
         ];
         tabs.forEach(tab => tab.setup());
-        listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => ui.removeTabGroup('messages') });
+        listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => dragStyle.remove() }, { remove: () => ui.removeTabGroup('messages') });
     }
 });
+
+})));
 
 function history(input) {
     let history = [];
@@ -1804,7 +1885,7 @@ function history(input) {
 
 var html = "<template>\r\n    <li>\r\n        <span>NAME</span>\r\n        <span>: Message</span>\r\n    </li>\r\n</template>\r\n<div id=\"console\">\r\n    <div class=\"chat\">\r\n        <ul></ul>\r\n    </div>\r\n    <div class=\"chat-control\">\r\n        <div class=\"field has-addons\">\r\n            <p class=\"control is-expanded\">\r\n                <input type=\"text\" class=\"input\" />\r\n            </p>\r\n            <p class=\"control\">\r\n                <button class=\"input button is-primary\">SEND</button>\r\n            </p>\r\n        </div>\r\n    </div>\r\n</div>";
 
-var css$1 = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
+var css = "#console .mod > span:first-child {\r\n    color: #05f529;\r\n}\r\n\r\n#console .admin > span:first-child {\r\n    color: #2b26bd;\r\n}\r\n\r\n#console .chat {\r\n    margin: 0 1em;\r\n    height: calc(100vh - 52px - 4.25em);\r\n    overflow-y: auto;\r\n}\r\n\r\n#console .chat-control {\r\n    position: fixed;\r\n    bottom: 0;\r\n    width: 100vw;\r\n    background: #fff;\r\n}\r\n\r\n#console .field {\r\n    margin: 1em;\r\n}\r\n";
 
 MessageBot$1.registerExtension('console', function (ex, world) {
     if (!ex.bot.getExports('ui')) {
@@ -1813,7 +1894,7 @@ MessageBot$1.registerExtension('console', function (ex, world) {
     const ui = ex.bot.getExports('ui');
     // Create the tab.
     let style = document.head.appendChild(document.createElement('style'));
-    style.textContent = css$1;
+    style.textContent = css;
     let tab = ui.addTab('Console');
     tab.innerHTML = html;
     let chatUl = tab.querySelector('ul');
