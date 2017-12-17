@@ -2244,6 +2244,26 @@ function main() {
         bot.addExtension('messages');
         bot.addExtension('settings');
         bot.addExtension('extensions');
+        // Check to see if the bot is loaded already
+        const loadChecker = (event) => {
+            if (event.key === 'load_indicator' + worldId && event.newValue === '1') {
+                localStorage.setItem('already_loaded' + worldId, '1');
+                localStorage.setItem('load_indicator' + worldId, '0');
+            }
+        };
+        const loadWarner = (event) => {
+            if (event.key === 'already_loaded' + worldId && event.newValue === '1') {
+                localStorage.setItem('already_loaded' + worldId, '0');
+                bot.getExports('ui')
+                    .alert('Warning: The bot is already loaded in another tab. If you leave this tab open, your storage may be overwritten and messages may be sent twice.');
+            }
+        };
+        addEventListener('storage', loadChecker);
+        addEventListener('storage', loadWarner);
+        // Fire the event so that we will be warned if another tab is already opened
+        localStorage.setItem('load_indicator' + worldId, '1');
+        // Reset the load indicator so that if another tab isn't opened, we will get an event when it is opened.
+        localStorage.setItem('load_indicator' + worldId, '0');
         yield bot.world.start();
         yield bot.world.getLists(true);
     });
