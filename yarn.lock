@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.0.9":
-  version "7.0.9"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.9.tgz#7cdaa476d0cbd93f90edde58b91607a3762d603f"
+"@bhmb/bot@^7.0.10":
+  version "7.0.10"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.0.10.tgz#24057f4feb4e621a3bc35006cba54cf5fb3ca671"
   dependencies:
     blockheads-api-interface "^0.0.1"
 
@@ -482,9 +482,9 @@ rollup-plugin-string@^2.0.2:
   dependencies:
     rollup-pluginutils "^1.5.0"
 
-rollup-plugin-typescript2@^0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-typescript2/-/rollup-plugin-typescript2-0.8.4.tgz#46b51cb15b4fb24a0b1c49e08f03253462c9b163"
+rollup-plugin-typescript2@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-typescript2/-/rollup-plugin-typescript2-0.9.0.tgz#d3fe826e17bb72734d0d23aa6ff62a65cc482666"
   dependencies:
     fs-extra "^4.0.2"
     resolve "^1.5.0"
@@ -511,9 +511,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.52.1:
-  version "0.52.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.52.1.tgz#610e8e1be432f18fcfbfa865408a1cd7618cd707"
+rollup@^0.52.2:
+  version "0.52.2"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.52.2.tgz#d75bc6f37be02fd27cbb344e57e77b30042bd2cf"
 
 semver@^5.3.0:
   version "5.4.1"

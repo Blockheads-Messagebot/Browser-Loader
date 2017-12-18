@@ -403,7 +403,8 @@ var __awaiter$1 = (undefined && undefined.__awaiter) || function (thisArg, _argu
     });
 };
 const cloneDate = (d) => new Date(d.getTime());
-const PLAYERS_KEY = 'mb_players';
+const PLAYERS_KEY = 'players';
+const LAST_UPDATE_KEY = 'lastPlayersUpdate';
 class World {
     constructor(api, storage) {
         this._cache = {};
@@ -468,8 +469,12 @@ class World {
          * @param refresh if true, will get the latest logs, otherwise will returned the cached version.
          */
         this.getLogs = (refresh = false) => __awaiter$1(this, void 0, void 0, function* () {
-            if (!this._cache.logs || refresh)
+            if (!this._cache.logs || refresh) {
+                const updatePlayers = !this._cache.logs;
                 this._cache.logs = this._api.getLogs();
+                if (updatePlayers)
+                    yield this._updatePlayers();
+            }
             let lines = yield this._cache.logs;
             return lines.slice().map(line => (Object.assign({}, line, { timestamp: cloneDate(line.timestamp) })));
         });
@@ -576,30 +581,49 @@ class World {
      */
     _createWatcher() {
         let watcher = this._chatWatcher = new ChatWatcher(this._api, this._online);
-        watcher.onJoin.sub(({ name, ip }) => {
-            name = name.toLocaleUpperCase();
-            this._storage.with(PLAYERS_KEY, {}, players => {
-                let player = players[name] = players[name] || { ip, ips: [ip], joins: 0 };
-                player.joins++;
-                player.ip = ip;
-                if (!player.ips.includes(ip))
-                    player.ips.push(ip);
-            });
-            this._events.onJoin.dispatch(this.getPlayer(name));
-        });
+        watcher.onJoin.sub(arg => this._addUser(arg));
         watcher.onLeave.sub(name => this._events.onLeave.dispatch(this.getPlayer(name)));
         watcher.onMessage.sub(({ name, message }) => {
             this._events.onMessage.dispatch({ player: this.getPlayer(name), message });
         });
         this.onMessage.sub(({ player, message }) => {
             if (/^\/[^ ]/.test(message)) {
-                let [, command, args] = message.match(/^\/([^ ]+) ?(.*)$/);
-                let handler = this._commands.get(command.toLocaleUpperCase());
+                const [, command, args] = message.match(/^\/([^ ]+) ?(.*)$/);
+                const handler = this._commands.get(command.toLocaleUpperCase());
                 if (handler)
                     handler(player, args);
             }
         });
         watcher.start();
+    }
+    _updatePlayers() {
+        return __awaiter$1(this, void 0, void 0, function* () {
+            // Note: We can't just use this.getLogs() here due to magic required to make players update only once.
+            const lines = yield this._cache.logs;
+            const { name } = yield this.getOverview();
+            const lastUpdate = this._storage.get(LAST_UPDATE_KEY, 0);
+            for (const line of lines) {
+                if (line.timestamp.getTime() < lastUpdate)
+                    continue;
+                if (!line.message.startsWith(`${name} - Player Connected`))
+                    continue;
+                const [, user, ip] = line.message.match(/Connected ([^a-z]{3,}) \| ([\d.]+) \| .{32}$/);
+                this._addUser({ name: user, ip });
+            }
+        });
+    }
+    _addUser({ name, ip }) {
+        name = name.toLocaleUpperCase();
+        this._storage.with(PLAYERS_KEY, {}, players => {
+            const player = players[name] = players[name] || { ip, ips: [ip], joins: 0 };
+            player.joins++;
+            player.ip = ip;
+            if (!player.ips.includes(ip))
+                player.ips.push(ip);
+        });
+        this._events.onJoin.dispatch(this.getPlayer(name));
+        // Prevent this join from being counted twice
+        this._storage.set(LAST_UPDATE_KEY, Date.now());
     }
 }
 
@@ -2219,8 +2243,11 @@ MessageBot$1.registerExtension('settings', function (ex) {
     };
 });
 
-window['@bhmb/bot'] = { MessageBot: MessageBot$1 };
-const worldId = window.worldId;
+if (window['@bhmb/bot']) {
+    throw new Error('Bot already loaded.');
+}
+window['@bhmb/bot'] = { MessageBot: MessageBot$1, SimpleEvent };
+const worldId = window.worldId.toString();
 if (location.hostname != 'portal.theblockheads.net') {
     if (confirm('You are not on the portal, go there now?')) {
         location.assign('http://portal.theblockheads.net');
@@ -2233,11 +2260,11 @@ if (!worldId) {
 MessageBot$1.dependencies = { Api, getWorlds, fetch };
 let info = {
     name: document.querySelector('#title').textContent,
-    id: worldId + ''
+    id: worldId
 };
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        let bot = new MessageBot$$1(new Storage$1(''), info);
+        let bot = new MessageBot$$1(new Storage$1(`/${worldId}`), info);
         bot.addExtension('ui');
         bot.addExtension('console');
         document.querySelector('.nav-item').click();
