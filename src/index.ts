@@ -1,5 +1,5 @@
 import { MessageBot as CustomBot } from './bot'
-import { MessageBot } from '@bhmb/bot'
+import { MessageBot, SimpleEvent } from '@bhmb/bot'
 import { Api, getWorlds } from 'blockheads-cloud-api'
 import { WorldInfo } from 'blockheads-api-interface'
 import { Storage } from './storage'
@@ -9,8 +9,12 @@ import '@bhmb/console'
 import './settings'
 import './extensions'
 
-(window as any)['@bhmb/bot'] = { MessageBot }
-const worldId: string = (window as any).worldId
+if ((window as any)['@bhmb/bot']) {
+    throw new Error('Bot already loaded.')
+}
+
+(window as any)['@bhmb/bot'] = { MessageBot, SimpleEvent }
+const worldId: string = (window as any).worldId.toString()
 
 if (location.hostname != 'portal.theblockheads.net') {
     if (confirm('You are not on the portal, go there now?')) {
@@ -27,11 +31,11 @@ MessageBot.dependencies = { Api, getWorlds, fetch }
 
 let info: WorldInfo = {
     name: (document.querySelector('#title') as HTMLElement).textContent as string,
-    id: worldId + ''
+    id: worldId
 }
 
 async function main() {
-    let bot = new CustomBot(new Storage(''), info)
+    let bot = new CustomBot(new Storage(`/${worldId}`), info)
     bot.addExtension('ui')
     bot.addExtension('console')
     ;(document.querySelector('.nav-item') as HTMLElement).click()
