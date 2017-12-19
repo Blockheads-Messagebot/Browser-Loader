@@ -1315,6 +1315,10 @@ var api = function () {
             if (child)
                 child.selected = true;
         }
+        if (element instanceof HTMLInputElement && 'checked' in rule) {
+            element.checked = rule.checked;
+            blacklist.push('checked');
+        }
         Object.keys(rule)
             .filter(function (key) { return !blacklist.includes(key); })
             .forEach(function (key) { return element.setAttribute(key, rule[key]); });
