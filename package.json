@@ -8,10 +8,10 @@
   "dependencies": {
     "@bhmb/bot": "^7.0.10",
     "@bhmb/console": "^1.0.2",
-    "@bhmb/messages": "^1.0.10",
+    "@bhmb/messages": "^1.0.12",
     "@bhmb/ui": "^1.0.7",
     "blockheads-cloud-api": "^0.0.2",
-    "rollup": "^0.52.3",
+    "rollup": "^0.53.0",
     "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-string": "^2.0.2",

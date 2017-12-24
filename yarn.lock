@@ -12,9 +12,11 @@
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.2.tgz#27df561bf8bae6e2a88bf0add199b9719002a721"
 
-"@bhmb/messages@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.10.tgz#87e7b8515f7de879077fb82c9e3b0fcfb6f39ca9"
+"@bhmb/messages@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.12.tgz#63abc99e1c7b3a8d8dab3391e67e10fe83564f99"
+  dependencies:
+    dragula "^3.7.2"
 
 "@bhmb/ui@^1.0.7":
   version "1.0.7"
@@ -51,6 +53,10 @@ arr-flatten@^1.0.1:
 array-unique@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/array-unique/-/array-unique-0.2.1.tgz#a1d97ccafcbc2625cc70fadceb36a50c58b01a53"
+
+atoa@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/atoa/-/atoa-1.0.0.tgz#0cc0e91a480e738f923ebc103676471779b34a49"
 
 babel-code-frame@^6.22.0:
   version "6.26.0"
@@ -135,9 +141,33 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
+contra@1.9.4:
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/contra/-/contra-1.9.4.tgz#f53bde42d7e5b5985cae4d99a8d610526de8f28d"
+  dependencies:
+    atoa "1.0.0"
+    ticky "1.0.1"
+
+crossvent@1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/crossvent/-/crossvent-1.5.4.tgz#da2c4f8f40c94782517bf2beec1044148194ab92"
+  dependencies:
+    custom-event "1.0.0"
+
+custom-event@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.0.tgz#2e4628be19dc4b214b5c02630c5971e811618062"
+
 diff@^3.2.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.4.0.tgz#b1d85507daf3964828de54b37d0d73ba67dda56c"
+
+dragula@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/dragula/-/dragula-3.7.2.tgz#4a35c9d3981ffac1a949c29ca7285058e87393ce"
+  dependencies:
+    contra "1.9.4"
+    crossvent "1.5.4"
 
 escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
@@ -511,9 +541,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.52.3:
-  version "0.52.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.52.3.tgz#020d99fffe9619351e47b3894fd397c26f5e1bf6"
+rollup@^0.53.0:
+  version "0.53.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.0.tgz#7a3d5a04ba2b0a8f2405899fa6a0ac48da480ed1"
 
 semver@^5.3.0:
   version "5.4.1"
@@ -538,6 +568,10 @@ supports-color@^4.0.0:
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-4.5.0.tgz#be7a0de484dec5c5cddf8b3d59125044912f635b"
   dependencies:
     has-flag "^2.0.0"
+
+ticky@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ticky/-/ticky-1.0.1.tgz#b7cfa71e768f1c9000c497b9151b30947c50e46d"
 
 tslib@^1.7.1, tslib@^1.8.0:
   version "1.8.0"

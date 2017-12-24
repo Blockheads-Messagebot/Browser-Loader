@@ -1642,11 +1642,878 @@ and limitations under the License.
 function __awaiter$4(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 }
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+var atoa = function atoa (a, n) { return Array.prototype.slice.call(a, n); };
+
+var si = typeof setImmediate === 'function';
+var tick;
+if (si) {
+  tick = function (fn) { setImmediate(fn); };
+} else if (typeof process !== 'undefined' && process.nextTick) {
+  tick = process.nextTick;
+} else {
+  tick = function (fn) { setTimeout(fn, 0); };
+}
+
+var ticky = tick;
+
+var debounce = function debounce (fn, args, ctx) {
+  if (!fn) { return; }
+  ticky(function run () {
+    fn.apply(ctx || null, args || []);
+  });
+};
+
+var emitter = function emitter (thing, options) {
+  var opts = options || {};
+  var evt = {};
+  if (thing === undefined) { thing = {}; }
+  thing.on = function (type, fn) {
+    if (!evt[type]) {
+      evt[type] = [fn];
+    } else {
+      evt[type].push(fn);
+    }
+    return thing;
+  };
+  thing.once = function (type, fn) {
+    fn._once = true; // thing.off(fn) still works!
+    thing.on(type, fn);
+    return thing;
+  };
+  thing.off = function (type, fn) {
+    var c = arguments.length;
+    if (c === 1) {
+      delete evt[type];
+    } else if (c === 0) {
+      evt = {};
+    } else {
+      var et = evt[type];
+      if (!et) { return thing; }
+      et.splice(et.indexOf(fn), 1);
+    }
+    return thing;
+  };
+  thing.emit = function () {
+    var args = atoa(arguments);
+    return thing.emitterSnapshot(args.shift()).apply(this, args);
+  };
+  thing.emitterSnapshot = function (type) {
+    var et = (evt[type] || []).slice(0);
+    return function () {
+      var args = atoa(arguments);
+      var ctx = this || thing;
+      if (type === 'error' && opts.throws !== false && !et.length) { throw args.length === 1 ? args[0] : args; }
+      et.forEach(function emitter (listen) {
+        if (opts.async) { debounce(listen, args, ctx); } else { listen.apply(ctx, args); }
+        if (listen._once) { thing.off(type, listen); }
+      });
+      return thing;
+    };
+  };
+  return thing;
+};
+
+var NativeCustomEvent = commonjsGlobal.CustomEvent;
+
+function useNative () {
+  try {
+    var p = new NativeCustomEvent('cat', { detail: { foo: 'bar' } });
+    return  'cat' === p.type && 'bar' === p.detail.foo;
+  } catch (e) {
+  }
+  return false;
+}
+
+/**
+ * Cross-browser `CustomEvent` constructor.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent.CustomEvent
+ *
+ * @public
+ */
+
+var customEvent = useNative() ? NativeCustomEvent :
+
+// IE >= 9
+'function' === typeof document.createEvent ? function CustomEvent (type, params) {
+  var e = document.createEvent('CustomEvent');
+  if (params) {
+    e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
+  } else {
+    e.initCustomEvent(type, false, false, void 0);
+  }
+  return e;
+} :
+
+// IE <= 8
+function CustomEvent (type, params) {
+  var e = document.createEventObject();
+  e.type = type;
+  if (params) {
+    e.bubbles = Boolean(params.bubbles);
+    e.cancelable = Boolean(params.cancelable);
+    e.detail = params.detail;
+  } else {
+    e.bubbles = false;
+    e.cancelable = false;
+    e.detail = void 0;
+  }
+  return e;
+};
+
+var eventmap = [];
+var eventname = '';
+var ron = /^on/;
+
+for (eventname in commonjsGlobal) {
+  if (ron.test(eventname)) {
+    eventmap.push(eventname.slice(2));
+  }
+}
+
+var eventmap_1 = eventmap;
+
+var doc$1 = commonjsGlobal.document;
+var addEvent = addEventEasy;
+var removeEvent = removeEventEasy;
+var hardCache = [];
+
+if (!commonjsGlobal.addEventListener) {
+  addEvent = addEventHard;
+  removeEvent = removeEventHard;
+}
+
+var crossvent = {
+  add: addEvent,
+  remove: removeEvent,
+  fabricate: fabricateEvent
+};
+
+function addEventEasy (el, type, fn, capturing) {
+  return el.addEventListener(type, fn, capturing);
+}
+
+function addEventHard (el, type, fn) {
+  return el.attachEvent('on' + type, wrap(el, type, fn));
+}
+
+function removeEventEasy (el, type, fn, capturing) {
+  return el.removeEventListener(type, fn, capturing);
+}
+
+function removeEventHard (el, type, fn) {
+  var listener = unwrap(el, type, fn);
+  if (listener) {
+    return el.detachEvent('on' + type, listener);
+  }
+}
+
+function fabricateEvent (el, type, model) {
+  var e = eventmap_1.indexOf(type) === -1 ? makeCustomEvent() : makeClassicEvent();
+  if (el.dispatchEvent) {
+    el.dispatchEvent(e);
+  } else {
+    el.fireEvent('on' + type, e);
+  }
+  function makeClassicEvent () {
+    var e;
+    if (doc$1.createEvent) {
+      e = doc$1.createEvent('Event');
+      e.initEvent(type, true, true);
+    } else if (doc$1.createEventObject) {
+      e = doc$1.createEventObject();
+    }
+    return e;
+  }
+  function makeCustomEvent () {
+    return new customEvent(type, { detail: model });
+  }
+}
+
+function wrapperFactory (el, type, fn) {
+  return function wrapper (originalEvent) {
+    var e = originalEvent || commonjsGlobal.event;
+    e.target = e.target || e.srcElement;
+    e.preventDefault = e.preventDefault || function preventDefault () { e.returnValue = false; };
+    e.stopPropagation = e.stopPropagation || function stopPropagation () { e.cancelBubble = true; };
+    e.which = e.which || e.keyCode;
+    fn.call(el, e);
+  };
+}
+
+function wrap (el, type, fn) {
+  var wrapper = unwrap(el, type, fn) || wrapperFactory(el, type, fn);
+  hardCache.push({
+    wrapper: wrapper,
+    element: el,
+    type: type,
+    fn: fn
+  });
+  return wrapper;
+}
+
+function unwrap (el, type, fn) {
+  var i = find(el, type, fn);
+  if (i) {
+    var wrapper = hardCache[i].wrapper;
+    hardCache.splice(i, 1); // free up a tad of memory
+    return wrapper;
+  }
+}
+
+function find (el, type, fn) {
+  var i, item;
+  for (i = 0; i < hardCache.length; i++) {
+    item = hardCache[i];
+    if (item.element === el && item.type === type && item.fn === fn) {
+      return i;
+    }
+  }
+}
+
+var cache = {};
+var start = '(?:^|\\s)';
+var end = '(?:\\s|$)';
+
+function lookupClass (className) {
+  var cached = cache[className];
+  if (cached) {
+    cached.lastIndex = 0;
+  } else {
+    cache[className] = cached = new RegExp(start + className + end, 'g');
+  }
+  return cached;
+}
+
+function addClass (el, className) {
+  var current = el.className;
+  if (!current.length) {
+    el.className = className;
+  } else if (!lookupClass(className).test(current)) {
+    el.className += ' ' + className;
+  }
+}
+
+function rmClass (el, className) {
+  el.className = el.className.replace(lookupClass(className), ' ').trim();
+}
+
+var classes = {
+  add: addClass,
+  rm: rmClass
+};
+
+var doc = document;
+var documentElement = doc.documentElement;
+
+function dragula (initialContainers, options) {
+  var len = arguments.length;
+  if (len === 1 && Array.isArray(initialContainers) === false) {
+    options = initialContainers;
+    initialContainers = [];
+  }
+  var _mirror; // mirror image
+  var _source; // source container
+  var _item; // item being dragged
+  var _offsetX; // reference x
+  var _offsetY; // reference y
+  var _moveX; // reference move x
+  var _moveY; // reference move y
+  var _initialSibling; // reference sibling when grabbed
+  var _currentSibling; // reference sibling now
+  var _copy; // item used for copying
+  var _renderTimer; // timer for setTimeout renderMirrorImage
+  var _lastDropTarget = null; // last container item was over
+  var _grabbed; // holds mousedown context until first mousemove
+
+  var o = options || {};
+  if (o.moves === void 0) { o.moves = always; }
+  if (o.accepts === void 0) { o.accepts = always; }
+  if (o.invalid === void 0) { o.invalid = invalidTarget; }
+  if (o.containers === void 0) { o.containers = initialContainers || []; }
+  if (o.isContainer === void 0) { o.isContainer = never; }
+  if (o.copy === void 0) { o.copy = false; }
+  if (o.copySortSource === void 0) { o.copySortSource = false; }
+  if (o.revertOnSpill === void 0) { o.revertOnSpill = false; }
+  if (o.removeOnSpill === void 0) { o.removeOnSpill = false; }
+  if (o.direction === void 0) { o.direction = 'vertical'; }
+  if (o.ignoreInputTextSelection === void 0) { o.ignoreInputTextSelection = true; }
+  if (o.mirrorContainer === void 0) { o.mirrorContainer = doc.body; }
+
+  var drake = emitter({
+    containers: o.containers,
+    start: manualStart,
+    end: end,
+    cancel: cancel,
+    remove: remove,
+    destroy: destroy,
+    canMove: canMove,
+    dragging: false
+  });
+
+  if (o.removeOnSpill === true) {
+    drake.on('over', spillOver).on('out', spillOut);
+  }
+
+  events();
+
+  return drake;
+
+  function isContainer (el) {
+    return drake.containers.indexOf(el) !== -1 || o.isContainer(el);
+  }
+
+  function events (remove) {
+    var op = remove ? 'remove' : 'add';
+    touchy(documentElement, op, 'mousedown', grab);
+    touchy(documentElement, op, 'mouseup', release);
+  }
+
+  function eventualMovements (remove) {
+    var op = remove ? 'remove' : 'add';
+    touchy(documentElement, op, 'mousemove', startBecauseMouseMoved);
+  }
+
+  function movements (remove) {
+    var op = remove ? 'remove' : 'add';
+    crossvent[op](documentElement, 'selectstart', preventGrabbed); // IE8
+    crossvent[op](documentElement, 'click', preventGrabbed);
+  }
+
+  function destroy () {
+    events(true);
+    release({});
+  }
+
+  function preventGrabbed (e) {
+    if (_grabbed) {
+      e.preventDefault();
+    }
+  }
+
+  function grab (e) {
+    _moveX = e.clientX;
+    _moveY = e.clientY;
+
+    var ignore = whichMouseButton(e) !== 1 || e.metaKey || e.ctrlKey;
+    if (ignore) {
+      return; // we only care about honest-to-god left clicks and touch events
+    }
+    var item = e.target;
+    var context = canStart(item);
+    if (!context) {
+      return;
+    }
+    _grabbed = context;
+    eventualMovements();
+    if (e.type === 'mousedown') {
+      if (isInput(item)) { // see also: https://github.com/bevacqua/dragula/issues/208
+        item.focus(); // fixes https://github.com/bevacqua/dragula/issues/176
+      } else {
+        e.preventDefault(); // fixes https://github.com/bevacqua/dragula/issues/155
+      }
+    }
+  }
+
+  function startBecauseMouseMoved (e) {
+    if (!_grabbed) {
+      return;
+    }
+    if (whichMouseButton(e) === 0) {
+      release({});
+      return; // when text is selected on an input and then dragged, mouseup doesn't fire. this is our only hope
+    }
+    // truthy check fixes #239, equality fixes #207
+    if (e.clientX !== void 0 && e.clientX === _moveX && e.clientY !== void 0 && e.clientY === _moveY) {
+      return;
+    }
+    if (o.ignoreInputTextSelection) {
+      var clientX = getCoord('clientX', e);
+      var clientY = getCoord('clientY', e);
+      var elementBehindCursor = doc.elementFromPoint(clientX, clientY);
+      if (isInput(elementBehindCursor)) {
+        return;
+      }
+    }
+
+    var grabbed = _grabbed; // call to end() unsets _grabbed
+    eventualMovements(true);
+    movements();
+    end();
+    start(grabbed);
+
+    var offset = getOffset(_item);
+    _offsetX = getCoord('pageX', e) - offset.left;
+    _offsetY = getCoord('pageY', e) - offset.top;
+
+    classes.add(_copy || _item, 'gu-transit');
+    renderMirrorImage();
+    drag(e);
+  }
+
+  function canStart (item) {
+    if (drake.dragging && _mirror) {
+      return;
+    }
+    if (isContainer(item)) {
+      return; // don't drag container itself
+    }
+    var handle = item;
+    while (getParent(item) && isContainer(getParent(item)) === false) {
+      if (o.invalid(item, handle)) {
+        return;
+      }
+      item = getParent(item); // drag target should be a top element
+      if (!item) {
+        return;
+      }
+    }
+    var source = getParent(item);
+    if (!source) {
+      return;
+    }
+    if (o.invalid(item, handle)) {
+      return;
+    }
+
+    var movable = o.moves(item, source, handle, nextEl(item));
+    if (!movable) {
+      return;
+    }
+
+    return {
+      item: item,
+      source: source
+    };
+  }
+
+  function canMove (item) {
+    return !!canStart(item);
+  }
+
+  function manualStart (item) {
+    var context = canStart(item);
+    if (context) {
+      start(context);
+    }
+  }
+
+  function start (context) {
+    if (isCopy(context.item, context.source)) {
+      _copy = context.item.cloneNode(true);
+      drake.emit('cloned', _copy, context.item, 'copy');
+    }
+
+    _source = context.source;
+    _item = context.item;
+    _initialSibling = _currentSibling = nextEl(context.item);
+
+    drake.dragging = true;
+    drake.emit('drag', _item, _source);
+  }
+
+  function invalidTarget () {
+    return false;
+  }
+
+  function end () {
+    if (!drake.dragging) {
+      return;
+    }
+    var item = _copy || _item;
+    drop(item, getParent(item));
+  }
+
+  function ungrab () {
+    _grabbed = false;
+    eventualMovements(true);
+    movements(true);
+  }
+
+  function release (e) {
+    ungrab();
+
+    if (!drake.dragging) {
+      return;
+    }
+    var item = _copy || _item;
+    var clientX = getCoord('clientX', e);
+    var clientY = getCoord('clientY', e);
+    var elementBehindCursor = getElementBehindPoint(_mirror, clientX, clientY);
+    var dropTarget = findDropTarget(elementBehindCursor, clientX, clientY);
+    if (dropTarget && ((_copy && o.copySortSource) || (!_copy || dropTarget !== _source))) {
+      drop(item, dropTarget);
+    } else if (o.removeOnSpill) {
+      remove();
+    } else {
+      cancel();
+    }
+  }
+
+  function drop (item, target) {
+    var parent = getParent(item);
+    if (_copy && o.copySortSource && target === _source) {
+      parent.removeChild(_item);
+    }
+    if (isInitialPlacement(target)) {
+      drake.emit('cancel', item, _source, _source);
+    } else {
+      drake.emit('drop', item, target, _source, _currentSibling);
+    }
+    cleanup();
+  }
+
+  function remove () {
+    if (!drake.dragging) {
+      return;
+    }
+    var item = _copy || _item;
+    var parent = getParent(item);
+    if (parent) {
+      parent.removeChild(item);
+    }
+    drake.emit(_copy ? 'cancel' : 'remove', item, parent, _source);
+    cleanup();
+  }
+
+  function cancel (revert) {
+    if (!drake.dragging) {
+      return;
+    }
+    var reverts = arguments.length > 0 ? revert : o.revertOnSpill;
+    var item = _copy || _item;
+    var parent = getParent(item);
+    var initial = isInitialPlacement(parent);
+    if (initial === false && reverts) {
+      if (_copy) {
+        if (parent) {
+          parent.removeChild(_copy);
+        }
+      } else {
+        _source.insertBefore(item, _initialSibling);
+      }
+    }
+    if (initial || reverts) {
+      drake.emit('cancel', item, _source, _source);
+    } else {
+      drake.emit('drop', item, parent, _source, _currentSibling);
+    }
+    cleanup();
+  }
+
+  function cleanup () {
+    var item = _copy || _item;
+    ungrab();
+    removeMirrorImage();
+    if (item) {
+      classes.rm(item, 'gu-transit');
+    }
+    if (_renderTimer) {
+      clearTimeout(_renderTimer);
+    }
+    drake.dragging = false;
+    if (_lastDropTarget) {
+      drake.emit('out', item, _lastDropTarget, _source);
+    }
+    drake.emit('dragend', item);
+    _source = _item = _copy = _initialSibling = _currentSibling = _renderTimer = _lastDropTarget = null;
+  }
+
+  function isInitialPlacement (target, s) {
+    var sibling;
+    if (s !== void 0) {
+      sibling = s;
+    } else if (_mirror) {
+      sibling = _currentSibling;
+    } else {
+      sibling = nextEl(_copy || _item);
+    }
+    return target === _source && sibling === _initialSibling;
+  }
+
+  function findDropTarget (elementBehindCursor, clientX, clientY) {
+    var target = elementBehindCursor;
+    while (target && !accepted()) {
+      target = getParent(target);
+    }
+    return target;
+
+    function accepted () {
+      var droppable = isContainer(target);
+      if (droppable === false) {
+        return false;
+      }
+
+      var immediate = getImmediateChild(target, elementBehindCursor);
+      var reference = getReference(target, immediate, clientX, clientY);
+      var initial = isInitialPlacement(target, reference);
+      if (initial) {
+        return true; // should always be able to drop it right back where it was
+      }
+      return o.accepts(_item, target, _source, reference);
+    }
+  }
+
+  function drag (e) {
+    if (!_mirror) {
+      return;
+    }
+    e.preventDefault();
+
+    var clientX = getCoord('clientX', e);
+    var clientY = getCoord('clientY', e);
+    var x = clientX - _offsetX;
+    var y = clientY - _offsetY;
+
+    _mirror.style.left = x + 'px';
+    _mirror.style.top = y + 'px';
+
+    var item = _copy || _item;
+    var elementBehindCursor = getElementBehindPoint(_mirror, clientX, clientY);
+    var dropTarget = findDropTarget(elementBehindCursor, clientX, clientY);
+    var changed = dropTarget !== null && dropTarget !== _lastDropTarget;
+    if (changed || dropTarget === null) {
+      out();
+      _lastDropTarget = dropTarget;
+      over();
+    }
+    var parent = getParent(item);
+    if (dropTarget === _source && _copy && !o.copySortSource) {
+      if (parent) {
+        parent.removeChild(item);
+      }
+      return;
+    }
+    var reference;
+    var immediate = getImmediateChild(dropTarget, elementBehindCursor);
+    if (immediate !== null) {
+      reference = getReference(dropTarget, immediate, clientX, clientY);
+    } else if (o.revertOnSpill === true && !_copy) {
+      reference = _initialSibling;
+      dropTarget = _source;
+    } else {
+      if (_copy && parent) {
+        parent.removeChild(item);
+      }
+      return;
+    }
+    if (
+      (reference === null && changed) ||
+      reference !== item &&
+      reference !== nextEl(item)
+    ) {
+      _currentSibling = reference;
+      dropTarget.insertBefore(item, reference);
+      drake.emit('shadow', item, dropTarget, _source);
+    }
+    function moved (type) { drake.emit(type, item, _lastDropTarget, _source); }
+    function over () { if (changed) { moved('over'); } }
+    function out () { if (_lastDropTarget) { moved('out'); } }
+  }
+
+  function spillOver (el) {
+    classes.rm(el, 'gu-hide');
+  }
+
+  function spillOut (el) {
+    if (drake.dragging) { classes.add(el, 'gu-hide'); }
+  }
+
+  function renderMirrorImage () {
+    if (_mirror) {
+      return;
+    }
+    var rect = _item.getBoundingClientRect();
+    _mirror = _item.cloneNode(true);
+    _mirror.style.width = getRectWidth(rect) + 'px';
+    _mirror.style.height = getRectHeight(rect) + 'px';
+    classes.rm(_mirror, 'gu-transit');
+    classes.add(_mirror, 'gu-mirror');
+    o.mirrorContainer.appendChild(_mirror);
+    touchy(documentElement, 'add', 'mousemove', drag);
+    classes.add(o.mirrorContainer, 'gu-unselectable');
+    drake.emit('cloned', _mirror, _item, 'mirror');
+  }
+
+  function removeMirrorImage () {
+    if (_mirror) {
+      classes.rm(o.mirrorContainer, 'gu-unselectable');
+      touchy(documentElement, 'remove', 'mousemove', drag);
+      getParent(_mirror).removeChild(_mirror);
+      _mirror = null;
+    }
+  }
+
+  function getImmediateChild (dropTarget, target) {
+    var immediate = target;
+    while (immediate !== dropTarget && getParent(immediate) !== dropTarget) {
+      immediate = getParent(immediate);
+    }
+    if (immediate === documentElement) {
+      return null;
+    }
+    return immediate;
+  }
+
+  function getReference (dropTarget, target, x, y) {
+    var horizontal = o.direction === 'horizontal';
+    var reference = target !== dropTarget ? inside() : outside();
+    return reference;
+
+    function outside () { // slower, but able to figure out any position
+      var len = dropTarget.children.length;
+      var i;
+      var el;
+      var rect;
+      for (i = 0; i < len; i++) {
+        el = dropTarget.children[i];
+        rect = el.getBoundingClientRect();
+        if (horizontal && (rect.left + rect.width / 2) > x) { return el; }
+        if (!horizontal && (rect.top + rect.height / 2) > y) { return el; }
+      }
+      return null;
+    }
+
+    function inside () { // faster, but only available if dropped inside a child element
+      var rect = target.getBoundingClientRect();
+      if (horizontal) {
+        return resolve(x > rect.left + getRectWidth(rect) / 2);
+      }
+      return resolve(y > rect.top + getRectHeight(rect) / 2);
+    }
+
+    function resolve (after) {
+      return after ? nextEl(target) : target;
+    }
+  }
+
+  function isCopy (item, container) {
+    return typeof o.copy === 'boolean' ? o.copy : o.copy(item, container);
+  }
+}
+
+function touchy (el, op, type, fn) {
+  var touch = {
+    mouseup: 'touchend',
+    mousedown: 'touchstart',
+    mousemove: 'touchmove'
+  };
+  var pointers = {
+    mouseup: 'pointerup',
+    mousedown: 'pointerdown',
+    mousemove: 'pointermove'
+  };
+  var microsoft = {
+    mouseup: 'MSPointerUp',
+    mousedown: 'MSPointerDown',
+    mousemove: 'MSPointerMove'
+  };
+  if (commonjsGlobal.navigator.pointerEnabled) {
+    crossvent[op](el, pointers[type], fn);
+  } else if (commonjsGlobal.navigator.msPointerEnabled) {
+    crossvent[op](el, microsoft[type], fn);
+  } else {
+    crossvent[op](el, touch[type], fn);
+    crossvent[op](el, type, fn);
+  }
+}
+
+function whichMouseButton (e) {
+  if (e.touches !== void 0) { return e.touches.length; }
+  if (e.which !== void 0 && e.which !== 0) { return e.which; } // see https://github.com/bevacqua/dragula/issues/261
+  if (e.buttons !== void 0) { return e.buttons; }
+  var button = e.button;
+  if (button !== void 0) { // see https://github.com/jquery/jquery/blob/99e8ff1baa7ae341e94bb89c3e84570c7c3ad9ea/src/event.js#L573-L575
+    return button & 1 ? 1 : button & 2 ? 3 : (button & 4 ? 2 : 0);
+  }
+}
+
+function getOffset (el) {
+  var rect = el.getBoundingClientRect();
+  return {
+    left: rect.left + getScroll('scrollLeft', 'pageXOffset'),
+    top: rect.top + getScroll('scrollTop', 'pageYOffset')
+  };
+}
+
+function getScroll (scrollProp, offsetProp) {
+  if (typeof commonjsGlobal[offsetProp] !== 'undefined') {
+    return commonjsGlobal[offsetProp];
+  }
+  if (documentElement.clientHeight) {
+    return documentElement[scrollProp];
+  }
+  return doc.body[scrollProp];
+}
+
+function getElementBehindPoint (point, x, y) {
+  var p = point || {};
+  var state = p.className;
+  var el;
+  p.className += ' gu-hide';
+  el = doc.elementFromPoint(x, y);
+  p.className = state;
+  return el;
+}
+
+function never () { return false; }
+function always () { return true; }
+function getRectWidth (rect) { return rect.width || (rect.right - rect.left); }
+function getRectHeight (rect) { return rect.height || (rect.bottom - rect.top); }
+function getParent (el) { return el.parentNode === doc ? null : el.parentNode; }
+function isInput (el) { return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || isEditable(el); }
+function isEditable (el) {
+  if (!el) { return false; } // no parents were editable
+  if (el.contentEditable === 'false') { return false; } // stop the lookup
+  if (el.contentEditable === 'true') { return true; } // found a contentEditable element in the chain
+  return isEditable(getParent(el)); // contentEditable is set to 'inherit'
+}
+
+function nextEl (el) {
+  return el.nextElementSibling || manually();
+  function manually () {
+    var sibling = el;
+    do {
+      sibling = sibling.nextSibling;
+    } while (sibling && sibling.nodeType !== 1);
+    return sibling;
+  }
+}
+
+function getEventHost (e) {
+  // on touchend event, we have to use `e.changedTouches`
+  // see http://stackoverflow.com/questions/7192563/touchend-event-properties
+  // see https://github.com/bevacqua/dragula/issues/34
+  if (e.targetTouches && e.targetTouches.length) {
+    return e.targetTouches[0];
+  }
+  if (e.changedTouches && e.changedTouches.length) {
+    return e.changedTouches[0];
+  }
+  return e;
+}
+
+function getCoord (coord, e) {
+  var host = getEventHost(e);
+  var missMap = {
+    pageX: 'clientX', // IE8
+    pageY: 'clientY' // IE8
+  };
+  if (coord in missMap && !(coord in host) && missMap[coord] in host) {
+    coord = missMap[coord];
+  }
+  return host[coord];
+}
+
+var dragula_1 = dragula;
 
 var joinHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-3\">\r\n                <details>\r\n                    <summary>More options</summary>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"group\" class=\"select is-small\">\r\n                                <option value=\"all\">anyone</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <p class=\"has-text-weight-bold\">Player is not </p>\r\n                        <div class=\"control\">\r\n                            <select data-target=\"not_group\" class=\"select is-small\">\r\n                                <option value=\"nobody\">nobody</option>\r\n                                <option value=\"staff\">a staff member</option>\r\n                                <option value=\"mod\">a mod</option>\r\n                                <option value=\"admin\">an admin</option>\r\n                                <option value=\"owner\">the owner</option>\r\n                            </select>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"level-options\">\r\n                        <div class=\"control\">\r\n                            <input type=\"number\" class=\"input is-small\" value=\"0\" data-target=\"joins_low\" min=\"0\">\r\n                            <span class=\"has-text-weight-bold\"> &le; player joins &le; </span>\r\n                            <input type=\"number\" class=\"input is-small\" value=\"9999\" data-target=\"joins_high\">\r\n                        </div>\r\n                    </div>\r\n                </details>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-widescreen\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\">+</span>\r\n        <h3 class=\"title is-4\">Join Messages</h3>\r\n        <ul>\r\n            <li>These messages will be checked when a player joins the server.</li>\r\n            <li>{{NAME}}, {{Name}}, and {{name}} in the message will be replaced with the user's name.</li>\r\n        </ul>\r\n    </section>\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
 
@@ -1656,21 +2523,6 @@ var triggerHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\
 
 var annHtml = "<template>\r\n    <div class=\"box\">\r\n        <div class=\"columns\">\r\n            <div class=\"column is-narrow is-hidden-touch\">\r\n                <span class=\"drag\"></span>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <p class=\"has-text-weight-bold\">Message</p>\r\n            </div>\r\n            <div class=\"column\">\r\n                <textarea class=\"textarea is-small is-fluid\" data-target=\"message\"></textarea>\r\n            </div>\r\n            <div class=\"column is-narrow\">\r\n                <button class=\"button is-small is-danger is-outlined\" data-do=\"delete\">Delete</button>\r\n            </div>\r\n        </div>\r\n        <div>\r\n            Wait X minutes...\r\n        </div>\r\n    </div>\r\n</template>\r\n\r\n<div class=\"container is-widescreen\">\r\n    <section class=\"section is-small\">\r\n        <span class=\"button is-primary is-adding-message\">+</span>\r\n        <h3 class=\"title is-4\">Announcements</h3>\r\n        <ul>\r\n            <li>These are sent according to a regular schedule.</li>\r\n            <li>If you have one announcement, it is sent every X minutes, if you have two, then the first is sent at X minutes, and the second\r\n            is sent X minutes after the first. Change X in the settings tab. Once the bot reaches the end of the list, it starts over\r\n            at the top.</li>\r\n            <li>If no players are online when a message is scheduled to be sent, no message will be sent and the next message will reset to the first message.</li>\r\n        </ul>\r\n    </section>\r\n    <div class=\"messages-container\"></div>\r\n</div>\r\n";
 
-function waitForGlobal(variable, url) {
-    return new Promise(resolve => {
-        const prev = document.querySelector(`script[src="${url}"]`);
-        if (!prev) {
-            const el = document.head.appendChild(document.createElement('script'));
-            el.src = url;
-        }
-        const interval = setInterval(() => {
-            if (window && window[variable]) {
-                resolve();
-                clearInterval(interval);
-            }
-        });
-    });
-}
 function getElementWithClass(className, element) {
     if (!element)
         return;
@@ -1680,7 +2532,6 @@ class MessagesTab extends RemovableMessageHelper {
     constructor({ name, ex, id }) {
         super(id, ex);
         this.setup = () => __awaiter$4(this, void 0, void 0, function* () {
-            yield waitForGlobal('dragula', 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js');
             this.insertHTML();
             this.template = this.tab.querySelector('template');
             this.root = this.tab.querySelector('.messages-container');
@@ -1703,13 +2554,13 @@ class MessagesTab extends RemovableMessageHelper {
                 this.save();
             });
             // Moving up / down
-            dragula([this.root], {
+            const dragger = dragula_1([this.root], {
                 moves(_el, _container, handle) {
                     return handle.classList.contains('drag');
                 }
-            })
-                .on('drop', () => this.save())
-                .on('drag', (el) => {
+            });
+            dragger.on('drop', () => this.save());
+            dragger.on('drag', (el) => {
                 const details = el.querySelector('details');
                 if (details)
                     details.open = false;
@@ -1817,7 +2668,7 @@ class AnnouncementTab extends MessagesTab {
     }
 }
 
-var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n    font-size: 0.6rem;\r\n}\r\n\r\n.messages-container {\r\n    border-top: 1px solid #cccccc;\r\n    padding-top: 1em;\r\n}\r\n\r\n.messages-container .box {\r\n    padding: 0.7em;\r\n    padding-bottom: 0;\r\n    margin-bottom: 1em;\r\n}\r\n\r\n.messages-container .columns {\r\n    margin-bottom: 0;\r\n}\r\n\r\n.messages-container .drag::after {\r\n    content: \" \\2261\";\r\n}\r\n\r\n.messages-container .level-options {\r\n    display: flex;\r\n    flex-direction: row;\r\n    align-items: center;\r\n}\r\n@media screen and (max-width: 768px) {\r\n    .messages-container .level-options {\r\n        flex-wrap: wrap;\r\n    }\r\n}\r\n\r\n.messages-container summary {\r\n    outline: none;\r\n}\r\n\r\n.is-adding-message {\r\n    position: fixed;\r\n    left: 1em;\r\n    z-index: 10;\r\n}\r\n\r\n.messages-container p {\r\n    margin-right: 0.5em;\r\n}\r\n";
+var css = ".messages-container input[type=number] {\r\n    width: 5em;\r\n    font-size: 0.6rem;\r\n}\r\n\r\n.messages-container {\r\n    border-top: 1px solid #cccccc;\r\n    padding-top: 1em;\r\n}\r\n\r\n.messages-container .box {\r\n    padding: 0.7em;\r\n    padding-bottom: 0;\r\n    margin-bottom: 1em;\r\n}\r\n\r\n.messages-container .columns {\r\n    margin-bottom: 0;\r\n}\r\n\r\n.messages-container .drag::after {\r\n    content: \" \\2261\";\r\n}\r\n\r\n.messages-container .level-options {\r\n    display: flex;\r\n    flex-direction: row;\r\n    align-items: center;\r\n}\r\n@media screen and (max-width: 768px) {\r\n    .messages-container .level-options {\r\n        flex-wrap: wrap;\r\n    }\r\n}\r\n\r\n.messages-container summary {\r\n    outline: none;\r\n}\r\n\r\n.is-adding-message {\r\n    position: fixed;\r\n    left: 1em;\r\n    z-index: 10;\r\n}\r\n\r\n.messages-container p {\r\n    margin-right: 0.5em;\r\n}\r\n\r\n/** Copied from https://github.com/bevacqua/dragula/blob/b0e5c4/dist/dragula.css **/\r\n.gu-mirror {\r\n    position: fixed !important;\r\n    margin: 0 !important;\r\n    z-index: 9999 !important;\r\n    opacity: 0.8;\r\n    -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)\";\r\n    filter: alpha(opacity=80);\r\n}\r\n.gu-hide {\r\n    display: none !important;\r\n}\r\n.gu-unselectable {\r\n    -webkit-user-select: none !important;\r\n    -moz-user-select: none !important;\r\n    -ms-user-select: none !important;\r\n    user-select: none !important;\r\n}\r\n.gu-transit {\r\n    opacity: 0.2;\r\n    -ms-filter: \"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)\";\r\n    filter: alpha(opacity=20);\r\n}\r\n";
 
 MessageBot$1.registerExtension('messages', function (ex, world) {
     let listeners = [];
@@ -1846,9 +2697,6 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
     if (ex.bot.getExports('ui')) {
         let style = document.head.appendChild(document.createElement('style'));
         style.innerHTML = css;
-        let dragStyle = document.head.appendChild(document.createElement('link'));
-        dragStyle.rel = 'stylesheet';
-        dragStyle.href = 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.css';
         let ui = ex.bot.getExports('ui');
         ui.addTabGroup('Messages', 'messages');
         let tabs = [
@@ -1858,7 +2706,7 @@ MessageBot$1.registerExtension('messages', function (ex, world) {
             new AnnouncementTab(ex),
         ];
         tabs.forEach(tab => tab.setup());
-        listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => dragStyle.remove() }, { remove: () => ui.removeTabGroup('messages') });
+        listeners = listeners.concat(...tabs, { remove: () => style.remove() }, { remove: () => ui.removeTabGroup('messages') });
     }
 });
 
