@@ -12,9 +12,9 @@
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.2.tgz#27df561bf8bae6e2a88bf0add199b9719002a721"
 
-"@bhmb/messages@^1.0.12":
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.12.tgz#63abc99e1c7b3a8d8dab3391e67e10fe83564f99"
+"@bhmb/messages@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.0.13.tgz#0da2c1da6c7752d9463d111549de14a8cc628086"
   dependencies:
     dragula "^3.7.2"
 
@@ -541,9 +541,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.53.0:
-  version "0.53.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.0.tgz#7a3d5a04ba2b0a8f2405899fa6a0ac48da480ed1"
+rollup@^0.53.3:
+  version "0.53.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.3.tgz#e7b6777623df912bd0ca30dc24be791d6ebc8e5a"
 
 semver@^5.3.0:
   version "5.4.1"
