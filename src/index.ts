@@ -26,6 +26,8 @@ if (!worldId) {
     alert('You must be on a world page to start the bot')
     throw new Error('Bad page')
 }
+// Kill the original listener
+(window as any).pollChat = () => {}
 
 MessageBot.dependencies = { Api, getWorlds, fetch }
 
