@@ -6,7 +6,7 @@
   "author": "Bibliofile <Bibliofilegit@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@bhmb/bot": "^7.0.11",
+    "@bhmb/bot": "^7.1.0",
     "@bhmb/console": "^1.0.3",
     "@bhmb/messages": "^1.0.14",
     "@bhmb/ui": "^1.0.8",

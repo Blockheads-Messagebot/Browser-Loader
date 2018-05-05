@@ -66,6 +66,7 @@ async function main() {
     // Reset the load indicator so that if another tab isn't opened, we will get an event when it is opened.
     localStorage.setItem('load_indicator' + worldId, '0')
 
+    bot.start()
     await bot.world.start()
     await bot.world.getLists(true)
 }
