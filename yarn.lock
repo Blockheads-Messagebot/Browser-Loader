@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@bhmb/bot@^7.1.0":
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.1.0.tgz#bcc219b4af6e6b8e9b98abf555ef166c1ef0fb24"
+"@bhmb/bot@^7.1.1":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@bhmb/bot/-/bot-7.1.1.tgz#f91a72765237ee7c75a8d0ede9bffb657028ab98"
   dependencies:
     blockheads-api-interface "^0.0.1"
 
