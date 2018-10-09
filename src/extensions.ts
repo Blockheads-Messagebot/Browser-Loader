@@ -77,6 +77,12 @@ MessageBot.registerExtension('extensions', ex => {
         }
     }
 
+    function reloadExtension(id : string) {
+        ex.bot.removeExtension(id, false)
+        ex.bot.addExtension(id)
+    }
+    ex.exports.reloadExtension = reloadExtension
+
     // Load listener
     let shouldLoad = new Set<string>()
     MessageBot.extensionRegistered.sub(id => {
