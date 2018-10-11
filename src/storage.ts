@@ -9,9 +9,9 @@ export class Storage extends AStorage {
 
     get<T>(key: string, fallback: T): T {
         // JSON.parse correctly handles null so it's fine to declare this as string.
-        let item = localStorage.getItem(this.head + key) as string
+        const item = localStorage.getItem(this.head + key) as string
         try {
-            let parsed = JSON.parse(item)
+            const parsed = JSON.parse(item)
             return parsed == null ? fallback : parsed
         } catch {
             return fallback

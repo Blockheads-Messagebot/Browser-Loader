@@ -1,5 +1,5 @@
 {
-  "name": "Browser-Loader",
+  "name": "browser-loader",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/Blockheads-Messagebot/Browser-Loader.git",
@@ -11,15 +11,15 @@
     "@bhmb/messages": "^1.0.14",
     "@bhmb/ui": "^1.0.8",
     "blockheads-cloud-api": "^0.0.3",
-    "rollup": "^0.58.2",
-    "rollup-plugin-commonjs": "^9.1.3",
-    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup": "^0.66.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-string": "^2.0.2",
-    "rollup-plugin-typescript2": "^0.13.0",
-    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-plugin-typescript2": "^0.17.1",
+    "rollup-plugin-uglify": "^6.0.0",
     "rollup-plugin-uglify-es": "^0.0.1",
-    "tslint": "^5.10.0",
-    "typescript": "^2.8.3"
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.2"
   },
   "scripts": {
     "build": "rollup --config"

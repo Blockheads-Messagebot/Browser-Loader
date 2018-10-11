@@ -21,14 +21,14 @@ const settingDefaults: [string, string | number | boolean][] = [
 ]
 
 MessageBot.registerExtension('settings', function (ex) {
-    let settingsRoot = ex.bot.storage
-    let ui = ex.bot.getExports('ui') as UIExtensionExports
+    const settingsRoot = ex.bot.storage
+    const ui = ex.bot.getExports('ui') as UIExtensionExports
 
-    let tab = ui.addTab('Settings')
+    const tab = ui.addTab('Settings')
     tab.innerHTML = html
 
-    for (let [key, def] of settingDefaults) {
-        let el = tab.querySelector(`[data-target="${key}"]`) as HTMLInputElement
+    for (const [key, def] of settingDefaults) {
+        const el = tab.querySelector(`[data-target="${key}"]`) as HTMLInputElement
 
         if (typeof def == 'boolean') {
             el.checked = settingsRoot.get(key, def)
@@ -38,8 +38,8 @@ MessageBot.registerExtension('settings', function (ex) {
     }
 
     tab.addEventListener('change', () => {
-        for (let [key, def] of settingDefaults) {
-            let el = tab.querySelector(`[data-target="${key}"]`) as HTMLInputElement
+        for (const [key, def] of settingDefaults) {
+            const el = tab.querySelector(`[data-target="${key}"]`) as HTMLInputElement
 
             if (typeof def == 'boolean') {
                 settingsRoot.set(key, el.checked)
@@ -74,7 +74,7 @@ MessageBot.registerExtension('settings', function (ex) {
 
     (tab.querySelector('[data-do=show_backup]') as HTMLElement).addEventListener('click', () => {
         // Must be loaded in a browser, so safe to use localStorage
-        let backup = JSON.stringify(localStorage).replace(/</g, '&lt;')
+        const backup = JSON.stringify(localStorage).replace(/</g, '&lt;')
         ui.alert(`<p>Copy this to a safe place.</p><textarea class="textarea">${backup}</textarea>`)
     })
 
@@ -87,9 +87,9 @@ MessageBot.registerExtension('settings', function (ex) {
     })
 
     ;(tab.querySelector('[data-do=download_backup]') as HTMLElement).addEventListener('click', () => {
-        let backup = JSON.stringify(localStorage, undefined, 4)
+        const backup = JSON.stringify(localStorage, undefined, 4)
 
-        let element = document.createElement('a')
+        const element = document.createElement('a')
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(backup))
         element.setAttribute('download', 'bot_backup.txt')
 
@@ -107,7 +107,7 @@ MessageBot.registerExtension('settings', function (ex) {
             return
         }
 
-        let input = document.createElement('input')
+        const input = document.createElement('input')
         input.type = 'file'
         input.addEventListener('change', () => {
             if (!input.files || input.files[0].type != 'text/plain') {
@@ -115,7 +115,7 @@ MessageBot.registerExtension('settings', function (ex) {
                 return
             }
 
-            let reader = new FileReader()
+            const reader = new FileReader()
             reader.addEventListener('load', () => {
                 importBackup(reader.result as string)
             })

@@ -31,13 +31,13 @@ if (!worldId) {
 
 MessageBot.dependencies = { Api, getWorlds, fetch }
 
-let info: WorldInfo = {
+const info: WorldInfo = {
     name: (document.querySelector('#title') as HTMLElement).textContent as string,
     id: worldId
 }
 
 async function main() {
-    let bot = new CustomBot(new Storage(`/${worldId}`), info)
+    const bot = new CustomBot(new Storage(`/${worldId}`), info)
     bot.addExtension('ui')
     bot.addExtension('console')
     ;(document.querySelector('.nav-item') as HTMLElement).click()

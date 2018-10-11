@@ -18,7 +18,7 @@ const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat
 export const defaultRepo = `https://gitcdn.xyz/cdn/Blockheads-Messagebot/Extensions/master/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
-    let env = info.env.toLocaleLowerCase()
+    const env = info.env.toLocaleLowerCase()
     return [
         env.includes('all'),
         env.includes('browser'),
@@ -27,14 +27,14 @@ function supported(info: ExtensionInfo): boolean {
 }
 
 MessageBot.registerExtension('extensions', ex => {
-    let ui = ex.bot.getExports('ui') as UIExtensionExports
-    let tab = ui.addTab('Extensions')
+    const ui = ex.bot.getExports('ui') as UIExtensionExports
+    const tab = ui.addTab('Extensions')
     tab.innerHTML = html
 
     tab.addEventListener('click', event => {
-        let target = event.target as HTMLElement
+        const target = event.target as HTMLElement
         if (target.tagName != 'A') return
-        let id = target.getAttribute('ext_id')
+        const id = target.getAttribute('ext_id')
         if (!id) return
 
         if (target.textContent == 'Install') {
@@ -54,7 +54,7 @@ MessageBot.registerExtension('extensions', ex => {
             ex.storage.with<string[]>('autoload', [], ids => {
                 if (!ids.includes(id)) ids.push(id)
             })
-            let button = tab.querySelector(`a[ext_id="${id}"]`) as HTMLElement | null
+            const button = tab.querySelector(`a[ext_id="${id}"]`) as HTMLElement | null
             if (button) button.textContent = 'Remove'
         } catch (error) {
             ui.notify('Error adding extension: ' + error)
@@ -70,7 +70,7 @@ MessageBot.registerExtension('extensions', ex => {
             ex.storage.with<string[]>('autoload', [], ids => {
                 if (ids.includes(id)) ids.splice(ids.indexOf(id), 1)
             })
-            let button = tab.querySelector(`a[ext_id="${id}"]`) as HTMLElement | null
+            const button = tab.querySelector(`a[ext_id="${id}"]`) as HTMLElement | null
             if (button) button.textContent = 'Install'
         } catch (error) {
             ui.notify('Error removing extension: ' + error)
@@ -79,24 +79,21 @@ MessageBot.registerExtension('extensions', ex => {
 
     function reloadExtension(id : string) {
         //Does it exist as an extension we can reload?
-        let info = extensionMap.get(id)
+        const info = extensionMap.get(id)
         if (!info) {
             console.warn('Could not reload unknown ID:', id)
             return
         }
         ex.bot.removeExtension(id, false)
         MessageBot.deregisterExtension(id)
-        if (!shouldLoad.has(id)) {
-            shouldLoad.add(id)
-        }
-        let script = document.head.appendChild(document.createElement('script'))
+        shouldLoad.add(id)
+        const script = document.head!.appendChild(document.createElement('script'))
         script.src = info.package
-        
     }
     ex.exports.reloadExtension = reloadExtension
 
     // Load listener
-    let shouldLoad = new Set<string>()
+    const shouldLoad = new Set<string>()
     MessageBot.extensionRegistered.sub(id => {
         // If in developer mode, autoload unconditionally
         if (ex.storage.get('devMode', false)) {
@@ -108,9 +105,9 @@ MessageBot.registerExtension('extensions', ex => {
         }
     })
 
-    let extensionMap = new Map<string, ExtensionInfo>()
+    const extensionMap = new Map<string, ExtensionInfo>()
     function load(id: string) {
-        let info = extensionMap.get(id)
+        const info = extensionMap.get(id)
         if (!info) {
             console.warn('Could not load unknown ID:', id)
             return
@@ -119,15 +116,15 @@ MessageBot.registerExtension('extensions', ex => {
             addExtension(id)
         } else {
             shouldLoad.add(id)
-            let script = document.head.appendChild(document.createElement('script'))
+            const script = document.head!.appendChild(document.createElement('script'))
             script.src = info.package
         }
     }
 
     // Load any extension repos
     // Repos listed first should have priority for duplicate ids
-    let repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse()
-    let repoRequests = repos.map(repo => fetch(repo).then(r => r.json()))
+    const repos = ex.storage.get('repos', defaultRepo).split(/\r?\n/).reverse()
+    const repoRequests = repos.map(repo => fetch(repo).then(r => r.json()))
     Promise.all(repoRequests)
         .then((responses: ExtensionInfo[][]) => {
             flatten(responses).filter(supported).forEach(extension => {
@@ -141,7 +138,7 @@ MessageBot.registerExtension('extensions', ex => {
         })
 
     function createPage() {
-        for (let extension of extensionMap.values()) {
+        for (const extension of extensionMap.values()) {
             ui.buildTemplate(
                 tab.querySelector('template') as HTMLTemplateElement,
                 tab.querySelector('tbody') as HTMLElement,
