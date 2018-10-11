@@ -77,6 +77,24 @@ MessageBot.registerExtension('extensions', ex => {
         }
     }
 
+    function reloadExtension(id : string) {
+        //Does it exist as an extension we can reload?
+        let info = extensionMap.get(id)
+        if (!info) {
+            console.warn('Could not reload unknown ID:', id)
+            return
+        }
+        ex.bot.removeExtension(id, false)
+        MessageBot.deregisterExtension(id)
+        if (!shouldLoad.has(id)) {
+            shouldLoad.add(id)
+        }
+        let script = document.head.appendChild(document.createElement('script'))
+        script.src = info.package
+        
+    }
+    ex.exports.reloadExtension = reloadExtension
+
     // Load listener
     let shouldLoad = new Set<string>()
     MessageBot.extensionRegistered.sub(id => {
