@@ -89,6 +89,10 @@ MessageBot.registerExtension('settings', function (ex) {
 
     ;(tab.querySelector('[data-do=download_backup]') as HTMLElement).addEventListener('click', () => {
         const backup = JSON.stringify(localStorage, undefined, 4)
+        if (!Blob) {
+            ui.notify(`Your browser doesn't support this.`)
+            return
+        }
         const blob = new Blob([backup], {
             type: 'text/plain;charset=utf-8'
         })
