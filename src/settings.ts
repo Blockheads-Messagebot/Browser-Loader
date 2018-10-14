@@ -1,5 +1,6 @@
 import { MessageBot } from '@bhmb/bot'
 import { UIExtensionExports } from '@bhmb/ui'
+import { saveAs } from 'save-as'
 
 import html from './settings.html'
 
@@ -88,17 +89,10 @@ MessageBot.registerExtension('settings', function (ex) {
 
     ;(tab.querySelector('[data-do=download_backup]') as HTMLElement).addEventListener('click', () => {
         const backup = JSON.stringify(localStorage, undefined, 4)
-
-        const element = document.createElement('a')
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(backup))
-        element.setAttribute('download', 'bot_backup.txt')
-
-        element.style.display = 'none'
-        document.body.appendChild(element)
-
-        element.click()
-
-        document.body.removeChild(element)
+        const blob = new Blob([backup], {
+            type: 'text/plain;charset=utf-8'
+        })
+        saveAs(blob, 'bot_backup.txt')
     })
 
     ;(tab.querySelector('[data-do=upload_backup]') as HTMLElement).addEventListener('click', () => {
