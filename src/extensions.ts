@@ -135,6 +135,10 @@ MessageBot.registerExtension('extensions', ex => {
             // Load those extensions which should be autoloaded
             ex.storage.get<string[]>('autoload', []).forEach(load)
             createPage()
+        }).catch(error => {
+            //In the scenario an extension repo fails to load.
+            console.error(error)
+            ui.notify('An extension repo has failed to load.')
         })
 
     function createPage() {
