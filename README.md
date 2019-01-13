@@ -5,7 +5,7 @@ A loader for the MessageBot via bookmarklets
 
 Create a bookmark with the following code for the URL:
 ```
-javascript:(function(){if (!window['@bhmb/bot'])document.head.appendChild(document.createElement('script')).src='https://bhmb.ga/bundle.js'}}())
+javascript:(function(){if (!window['@bhmb/bot'])document.head.appendChild(document.createElement('script')).src='https://bhmb.ga/bundle.js'}())
 ```
 
 If you are on a computer, you can drag this link to your bookmarks: <a href="javascript:(function(){if (!window['@bhmb/bot'])document.head.appendChild(document.createElement('script')).src='https://bhmb.ga/bundle.js'}}())">MessageBot</a>
