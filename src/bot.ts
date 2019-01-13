@@ -12,7 +12,7 @@ export class MessageBot extends Bot implements Bot {
             messages = [message]
         }
 
-        for (let msg of messages) {
+        for (const msg of messages) {
             super.send(msg, params)
         }
     }
