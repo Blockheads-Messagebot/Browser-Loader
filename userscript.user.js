@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Blockheads - MessageBot
 // @namespace    http://portal.theblockheads.net/
-// @version      0.1
-// @description  try to take over the world!
+// @version      0.2
+// @description  Adds links to launch the bot on world pages in the portal.
 // @author       Bibliofile
 // @match        http://portal.theblockheads.net/worlds/*
 // @grant        none
@@ -20,7 +20,7 @@
         link.addEventListener('click', function() {
             const script = document.head.appendChild(document.createElement('script'));
             script.src = url;
-            link.disabled = true;
+            li.remove();
         });
     }
 
