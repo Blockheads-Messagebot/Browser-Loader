@@ -7,15 +7,19 @@ const storageCache = new Map<string, any>()
 // Keys which should be written back to localStorage when possible.
 const writeback = new Set<string>()
 
-// Write to localStorage every 10 seconds max
-setInterval(() => {
+function writeStorage () {
     if (writeback.size === 0) return
 
     for (const key of writeback) {
         localStorage.setItem(key, JSON.stringify(storageCache.get(key)))
     }
     writeback.clear()
-}, 10 * 1000)
+}
+
+// Write to localStorage every 10 seconds max
+setInterval(writeStorage, 10 * 1000)
+// Prevent lost changes if the user reloads the page before 10 seconds have elapsed.
+window.addEventListener('unload', writeStorage)
 
 export class Storage extends AStorage {
     constructor(private head: string) {
