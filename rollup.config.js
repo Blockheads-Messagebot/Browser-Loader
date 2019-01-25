@@ -1,8 +1,9 @@
+// @ ts-check
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import string from 'rollup-plugin-string'
-import uglify from 'rollup-plugin-uglify-es'
+import { terser } from 'rollup-plugin-terser'
 
 // Build notes:
 // Ignore the warnings about this, and about the unresolved crypto module. It isn't used.
@@ -22,6 +23,6 @@ export default {
         commonjs(),
         string({ include: '**/*.html' }),
         typescript(),
-        uglify()
+        terser()
     ]
 }

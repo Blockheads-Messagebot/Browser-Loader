@@ -11,16 +11,15 @@
     "@bhmb/messages": "^1.0.16",
     "@bhmb/ui": "^1.0.9",
     "blockheads-cloud-api": "^0.0.3",
-    "rollup": "^1.1.0",
+    "rollup": "^1.1.2",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-string": "^2.0.2",
-    "rollup-plugin-typescript2": "^0.18.1",
-    "rollup-plugin-uglify": "^6.0.1",
-    "rollup-plugin-uglify-es": "^0.0.1",
+    "rollup-plugin-terser": "^4.0.3",
+    "rollup-plugin-typescript2": "^0.19.2",
     "save-as": "^0.1.8",
     "tslint": "^5.12.1",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.4"
   },
   "scripts": {
     "build": "rollup --config"
