@@ -1,4 +1,5 @@
 import { Storage as AStorage } from '@bhmb/bot'
+import cloneDeep from 'clone-deep'
 
 // A cache to avoid repeatedly parsing large JSON objects
 // when getting stuff from storage.
@@ -32,7 +33,7 @@ export class Storage extends AStorage {
         const fullKey = this.head + key
         // Get the cached value if there is one.
         if (storageCache.has(fullKey)) {
-            return storageCache.get(fullKey)
+            return cloneDeep(storageCache.get(fullKey))
         }
 
         try {
@@ -41,7 +42,7 @@ export class Storage extends AStorage {
             const parsed = JSON.parse(item)
             if (parsed != null) {
                 storageCache.set(fullKey, parsed)
-                return parsed
+                return cloneDeep(parsed)
             }
             return fallback
         } catch {
@@ -51,7 +52,11 @@ export class Storage extends AStorage {
 
     set(key: string, value: any): void {
         const fullKey = this.head + key
-        storageCache.set(fullKey, value)
+        storageCache.set(fullKey, cloneDeep(value))
+
+
+
+
         writeback.add(fullKey)
     }
 
