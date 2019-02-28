@@ -1,13 +1,25 @@
 <div class="container">
     <h3 class="title">General Settings</h3>
     <p class="control">
-        <label>Minutes between announcements</label>
-        <input class="input" type="number" data-target="messages/announcementDelay">
-        <br>
+        <label>Join message cooldown (seconds) - limit join messages by the same player</label>
+        <input class="input" type="number" data-target="messages/disableJoinDelay">
+    </p>
+    <p class="control">
+        <label>Leave message cooldown (seconds) - limit leave messages by the same player</label>
+        <input class="input" type="number" data-target="messages/disableLeaveDelay">
+    </p>
+    <p class="control">
+        <label>Trigger cooldown (seconds) - limit trigger messages by the same player</label>
+        <input class="input" type="number" data-target="messages/disableTriggerDelay">
     </p>
     <p class="control">
         <label>Maximum trigger responses to a message</label>
         <input class="input" type="number" data-target="messages/maxResponses">
+    </p>
+    <p class="control">
+        <label>Minutes between announcements</label>
+        <input class="input" type="number" data-target="messages/announcementDelay">
+        <br>
     </p>
     <p class="control">
         <label class="checkbox">

@@ -10,6 +10,9 @@ const settingDefaults: [string, string | number | boolean][] = [
     // General
     ['messages/announcementDelay', 10],
     ['messages/maxResponses', 3],
+    ['messages/disableJoinDelay', 30],
+    ['messages/disableLeaveDelay', 30],
+    ['messages/disableTriggerDelay', 10],
     ['console/logJoinIps', true],
     ['console/logUnparsedMessages', true],
     // Advanced
