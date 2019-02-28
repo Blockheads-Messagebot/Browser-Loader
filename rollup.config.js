@@ -2,7 +2,7 @@
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
-import string from 'rollup-plugin-string'
+import { string } from 'rollup-plugin-string'
 import { terser } from 'rollup-plugin-terser'
 
 // Build notes:
