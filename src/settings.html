@@ -1,16 +1,12 @@
 <div class="container">
     <h3 class="title">General Settings</h3>
     <p class="control">
-        <label>Join message cooldown (seconds) - limit join messages by the same player</label>
-        <input class="input" type="number" data-target="messages/disableJoinDelay">
-    </p>
-    <p class="control">
-        <label>Leave message cooldown (seconds) - limit leave messages by the same player</label>
-        <input class="input" type="number" data-target="messages/disableLeaveDelay">
+        <label>Rejoin cooldown (seconds) - if the player leaves then rejoins, don't send join messages</label>
+        <input class="input" type="number" data-target="messages/rejoinCooldown">
     </p>
     <p class="control">
         <label>Trigger cooldown (seconds) - limit trigger messages by the same player</label>
-        <input class="input" type="number" data-target="messages/disableTriggerDelay">
+        <input class="input" type="number" data-target="messages/triggerCooldown">
     </p>
     <p class="control">
         <label>Maximum trigger responses to a message</label>
