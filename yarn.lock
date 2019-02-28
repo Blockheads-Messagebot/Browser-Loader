@@ -30,10 +30,10 @@
   resolved "https://registry.yarnpkg.com/@bhmb/console/-/console-1.0.3.tgz#d5a31acb09f4c9ba406ff2d417e112fc66c61ab4"
   integrity sha1-1aMaywn0ybpAb/LUF+ES/GbGGrQ=
 
-"@bhmb/messages@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.1.1.tgz#613e48f7eab5d615d041d67b9d78df6465f82d15"
-  integrity sha512-PAfVo35/REN0ZEfIiTJjG4UX+xvIK0vmiaSonVwccHP4FViQEqmnkcEM4AE2N8gkhStRQxB10lQuFW9450kvFg==
+"@bhmb/messages@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@bhmb/messages/-/messages-1.1.2.tgz#9ee6a3e07195d7d2b1eca9e84088259758933356"
+  integrity sha512-Pl7pZJg6k9xWwMcB2GNc0EDHvbyCY25rojo5DUpFZvIUh+3CBJJScmprmb4g4YYNL9A4xfzZOvWVhOijeCNPXg==
   dependencies:
     dragula "^3.7.2"
 
