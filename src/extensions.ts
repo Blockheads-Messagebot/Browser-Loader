@@ -15,7 +15,8 @@ interface ExtensionInfo {
 const flatten = <T>(arr: T[][]): T[] => arr.reduce((carry, item) => carry.concat(item), [])
 // const pluck = <T, K extends keyof T>(arr: T[], key: K) => arr.map(item => item[key])
 
-export const defaultRepo = `https://gitcdn.xyz/cdn/Blockheads-Messagebot/Extensions/master/extensions.json`
+export const oldRepo = `https://gitcdn.xyz/cdn/Blockheads-Messagebot/Extensions/master/extensions.json`
+export const defaultRepo = `https://blockheads-messagebot.github.io/Extensions/extensions.json`
 
 function supported(info: ExtensionInfo): boolean {
     const env = info.env.toLocaleLowerCase()
@@ -30,6 +31,8 @@ MessageBot.registerExtension('extensions', ex => {
     const ui = ex.bot.getExports('ui') as UIExtensionExports
     const tab = ui.addTab('Extensions')
     tab.innerHTML = html
+
+    ex.storage.with('repos', defaultRepo, v => v.replace(oldRepo, defaultRepo))
 
     tab.addEventListener('click', event => {
         const target = event.target as HTMLElement
